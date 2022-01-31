@@ -1,0 +1,25 @@
+[2021-06-25 10:23:04] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 10:34:25] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 10:35:20] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 10:39:59] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 10:44:33] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 10:45:26] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 10:47:07] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 10:47:57] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 11:13:10] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 11:13:57] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 11:14:11] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 13:25:55] local.INFO: Wireless connected  
+[2021-06-25 18:25:35] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 18:26:09] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 18:26:40] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 19:11:40] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 19:12:29] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 19:13:03] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 19:13:07] local.ERROR: Server error top up agent : {"errorInfo":["22001",1406,"Data too long for column 'acode' at row 1"]}  
+[2021-06-25 19:20:50] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-25 19:20:54] local.ERROR: Successful top up : 255000000113 With reference id F200625192050255000000113  
+[2021-06-25 19:21:32] local.INFO: Wireless connected  
+[2021-06-25 19:21:40] local.INFO: Wireless connected  
+[2021-06-25 19:22:31] local.INFO: Wireless connected  
+[2021-06-25 19:24:04] local.INFO: Wireless connected  

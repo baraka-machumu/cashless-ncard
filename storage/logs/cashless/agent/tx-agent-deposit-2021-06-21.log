@@ -1,0 +1,4 @@
+[2021-06-21 15:50:15] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-21 15:50:25] local.ERROR: Successful top up : 202020 With reference id M200621155015202020  
+[2021-06-21 15:55:20] local.INFO: Wireless connected  
+[2021-06-21 16:01:01] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  

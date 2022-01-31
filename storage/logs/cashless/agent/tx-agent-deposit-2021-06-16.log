@@ -1,0 +1,29 @@
+[2021-06-16 11:42:59] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 11:43:05] local.ERROR: Server error topnup agent : {"errorInfo":["42S22",1054,"Unknown column 'code' in 'where clause'"]}  
+[2021-06-16 11:54:17] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 11:54:22] local.ERROR: Server error top up agent : {"errorInfo":["HY093"]}  
+[2021-06-16 11:55:56] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 11:57:23] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 11:57:28] local.ERROR: Server error top up agent : {"errorInfo":["23000",1048,"Column 'previous_balance' cannot be null"]}  
+[2021-06-16 11:59:00] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 11:59:04] local.ERROR: Server error top up agent : {"errorInfo":["42S22",1054,"Unknown column 'aacode' in 'where clause'"]}  
+[2021-06-16 11:59:59] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:10:37] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:10:42] local.ERROR: Server error top up agent : {"errorInfo":["42S22",1054,"Unknown column 'amount' in 'field list'"]}  
+[2021-06-16 12:11:36] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:11:40] local.ERROR: Server error top up agent : {"errorInfo":["42S22",1054,"Unknown column 'amount' in 'field list'"]}  
+[2021-06-16 12:12:25] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:12:30] local.ERROR: Server error top up agent : {"errorInfo":["42S22",1054,"Unknown column 'current_balance' in 'field list'"]}  
+[2021-06-16 12:13:16] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:13:20] local.ERROR: Server error top up agent : {"errorInfo":["42S22",1054,"Unknown column 'amount' in 'field list'"]}  
+[2021-06-16 12:14:45] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:15:05] local.ERROR: Successful top up : 202020 With reference id W200616121505202020  
+[2021-06-16 12:15:05] local.ERROR: Server error top up agent : {}  
+[2021-06-16 12:38:16] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:38:21] local.ERROR: Successful top up : 202020 With reference id W200616123816202020  
+[2021-06-16 12:42:46] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:42:50] local.ERROR: Successful top up : 202020 With reference id W200616124246202020  
+[2021-06-16 12:58:28] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 12:58:48] local.ERROR: Successful top up : 202020 With reference id W200616125828202020  
+[2021-06-16 13:00:38] local.ERROR: request{"attributes":{},"request":{},"query":{},"server":{},"files":{},"cookies":{},"headers":{}}  
+[2021-06-16 13:00:43] local.ERROR: Successful top up : 202020 With reference id W200616130038202020  

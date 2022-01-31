@@ -1,0 +1,2 @@
+[2020-07-24 16:56:51] local.ERROR: Payload from mno : {"wallet_id":"NC20177228","amount":"3000","gateway_name":"TIGO-PESA","reference":"200724124210279","transdate":"2020-07-24T12:42:57","checksum":"OPyVFiAhzBosBdKssXcX1AnlIbQf7iMpKqP5RdXzP6I=","mdn":"255658318488"}  
+[2020-07-24 16:57:06] local.ERROR: Payload from mno : {"wallet_id":"NC20177228","amount":"3000","gateway_name":"TIGO-PESA","reference":"200724124210279","transdate":"2020-07-24T12:42:57","checksum":"OPyVFiAhzBosBdKssXcX1AnlIbQf7iMpKqP5RdXzP6I=","mdn":"255658318488"}  

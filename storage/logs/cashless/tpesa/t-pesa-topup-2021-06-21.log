@@ -1,0 +1,3 @@
+[2021-06-21 15:50:16] local.INFO: request body -{"account":"202020","reference":"M200621155015202020","amount":"100","transdate":"2021-06-21T15:50:15Z","transid":"70","checksum":"uOD0WPXxLnXpJEhckXE0shBfIqps8FWgeLFhUqEy53I=","AggregatorName":"NCARD","cellid":null}  
+[2021-06-21 15:50:23] local.INFO: request body -{"message":"Success","resultcode":"0","result":{"amount":"100","account":"202020","transid":"70","reference":"M200621155015202020","rspid":"176568","balance":"97100"},"errorCode":"200"}  
+[2021-06-21 15:50:23] local.INFO: response body -{"message":"Success","resultcode":"0","result":{"amount":"100","account":"202020","transid":"70","reference":"M200621155015202020","rspid":"176568","balance":"97100"},"errorCode":"200"}  

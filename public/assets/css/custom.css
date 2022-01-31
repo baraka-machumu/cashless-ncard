@@ -1,0 +1,75 @@
+
+
+.table-margin-top {
+
+margin-top: 10px;
+}
+
+.show-user-details{
+
+    background-color: #1c729e;
+    color: white;
+    height: 35px;
+
+}
+
+.show-user-details-2{
+
+    background-color: #1c729e;
+    color: white;
+    height: 35px;
+    margin-bottom: 5px;
+
+}
+.show-user-details span{
+
+    /*display: block;*/
+    position: relative;
+    margin-top: 7px;
+
+    display:inline-block;
+}
+
+
+.user-details-round-icon {
+
+    border-radius:50%;
+    width: 40px;
+    height: 40px;
+    background-color: #1c729e;
+    text-align: center;
+    color: white;
+    margin-top: 5px;
+    margin-right: 5px;
+
+}
+
+.user-details-round-icon span {
+
+
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.modal-background {
+
+    background-color: #1c729e;
+
+    color: white;
+}
+
+.h4-background {
+
+    background-color: #1c729e;
+
+    color: white;
+
+    /*margin-left: 20px;*/
+    /*margin-right: 20px;*/
+
+}
+
+.form-validate-error{
+    border: solid 1px #c63c09;
+}
+
