@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SendSmsJob implements ShouldQueue
 {
@@ -28,6 +29,7 @@ class SendSmsJob implements ShouldQueue
     {
         $this->message =  $message;
         $this->phoneNo =  $phoneNo;
+        $this->onQueue('portal');
     }
 
     /**
@@ -40,12 +42,13 @@ class SendSmsJob implements ShouldQueue
 
         $smsapi  =  Config('api.smsapi');
 
-        Http::post($smsapi,[
+       $res= Http::post($smsapi,[
                 'msisdn' => RandomGenerator::addPrefixExtra($this->phoneNo),
                 'text' => $this->message,
                 'source'=>'N-CARD',
                 'reference'=>'onlinesite'
             ]
         );
+       Log::info('SMS-RESULT',['MESSAGE'=>$res]);
     }
 }

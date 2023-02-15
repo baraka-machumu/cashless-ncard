@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Wallet;
 
+use App\Card;
 use App\Consumer;
 use App\ConsumerWallet;
 use App\ConsumerCard;
@@ -11,14 +12,94 @@ use App\topup_trnx;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ConsumerWalletController extends Controller
 {
 
 
+    public  function  saveCustomer(Request  $request){
+        DB::beginTransaction();
+        try {
+
+            $cardU  =  Card::query()->select('card_number','card_uid')
+                ->where(['card_number'=>(int)$request->card])->first();
+            if (!$cardU){
+                if (!$request->card_uid){
+
+                    Session::flash('alert-danger','Invalid CARD ID');
+
+                    return back();
+                }
+                $card  =  new Card();
+
+                $card->card_uid  = $request->card_uid;
+                $card->card_number = $request->card;
+
+                $card->save();
+            }
+
+            $first_name = 'Unknown';
+            $last_name  = 'Unknown';
+            $consumer = new Consumer();
+
+            $consumer->country_code = 'TZA';
+            $consumer->first_name = $first_name;
+            $consumer->last_name = $last_name;
+            $consumer->gender_id = 1;
+            $consumer->status_id = 1;
+            $consumer->phone_number = $request->phone;
+            $consumer->password = Hash::make($request->phone);
+            $consumer->api_token = Str::random(60);
+            $status  =  $consumer->save();
+
+            $walletId = RandomGenerator::cardNumber($consumer->id);
+
+            $pin  =  random_int(1011,9986);
+            $wallet = new ConsumerWallet();
+            $wallet->wallet_id = $walletId;
+            $wallet->amount =0;// $request->get('amount',0);
+            $wallet->consumers_id = $consumer->id;
+            $wallet->consumers_status_id = $consumer->status_id;
+            $wallet->pin = Hash::make(1234);
+
+            $wallet->save();
+
+            $c_card = new ConsumerCard();
+
+            $c_card->card_number = $request->card;
+
+            if ($cardU) {
+                $c_card->card_uid = $cardU->card_uid;
+
+            } else{
+                $c_card->card_uid = $request->card_uid;
+
+            }
+            $c_card->status_id = 1;
+            $c_card->consumers_wallet_id = $walletId;
+            $c_card->agent_code  =  null;
+            $c_card->consumer_id  = $consumer->id;
+            $c_card->save();
+
+            DB::commit();
+
+            Session::flash('alert-danger','successful');
+
+            return back();
+
+        }catch (Throwable $exception){
+
+            Log::error($exception);
+            Session::flash('alert-danger','Server error');
+            return back();
+        }
+    }
 
     public  function  disableAccount(Request $request){
 
@@ -77,7 +158,7 @@ class ConsumerWalletController extends Controller
 
         $res  = true;
 
-      
+
     if(strlen($request->card)==8){
 
         $balance  =DB::table('consumer_wallets as cw')
@@ -184,6 +265,40 @@ class ConsumerWalletController extends Controller
 
             return redirect('refund/top');
         }
+
+    }
+
+    public  function  verifyTopupRefund(Request  $request){
+        $res  = true;
+        $balance  =DB::table('consumer_wallets as cw')
+            ->select('amount','wallet_id','cw.previous_balance','cw.current_topup','cc.card_uid')
+            ->join('consumer_cards as cc','cc.consumers_wallet_id','=','cw.wallet_id')
+            ->where(['cc.card_number'=>$request->card])
+            ->first();
+        if (!$balance){
+            Session::flash('alert-danger', 'Card not found');
+            return  back();
+        }
+
+        $card_number  =$request->card;
+        $tx  = DB::table('topup_trnx')->where(['card_number'=>$card_number])->get();
+        $engine  = Http::post(base_url().'/lantana/v1/wbs/attendancy-report',
+            ['CardUID'=>$balance->card_uid,'StartDate'=>$request->start_date,'EndDate'=>$request->end_date]);
+        $engine  = $engine->json();
+        if ($engine['resultcode']=='01'){
+            $engine  = array();
+            $sum = 0;
+        }
+        else {
+            $engine =  json_decode(json_encode($engine['result']));
+            $sum = 0;
+            foreach($engine as $key=>$value){
+                if(isset($value->Amount))
+                    $sum += $value->Amount;
+            }
+        }
+
+        return view('top',compact('sum','res','card_number','balance','tx','engine'));
 
     }
 

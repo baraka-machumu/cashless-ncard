@@ -52,14 +52,14 @@
                         </div>
                         <div class="col-md-6">
 
-                       <div class="form-group">
+                            <div class="form-group">
 
-   <label for="reference">Agent Code</label>
-                              <input type="text" class="form-control" readonly  value="{{$agent_code}}" name="agent_code" id="agent_code">
+                                <label for="reference">Agent Code</label>
+                                <input type="text" class="form-control" readonly  value="{{$agent_code}}" name="agent_code" id="agent_code">
 
-                           </div>
+                            </div>
 
-{{--                            <input type="text" readonly value="{{$agent_code}}" name="agent_code">--}}
+                            {{--                            <input type="text" readonly value="{{$agent_code}}" name="agent_code">--}}
                             <div class="form-group">
 
                                 <button type="submit" style="margin-top: 28px;" class="btn btn-success save-agent" id="save-agent" name="">Save</button>

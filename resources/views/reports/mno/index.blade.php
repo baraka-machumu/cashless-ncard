@@ -4,14 +4,14 @@
 
 @section('content')
 
-    @can('agent-topup')
+    @can('view-report')
 
     <div class="container-fluid">
         <div class="row">
 
             <div class="col-md-12">
                 <div class="col-md-12" style="border: 2px solid #cdd1d3; height: 50px; line-height: 50px; margin-top: 5px;">
-                    <span class="page-title">Get MNO TOP-UP Summary</span>
+                    <span class="page-title">GET MNO/BANK TOP-UP SUMMARY</span>
 
                 </div>
             </div>
@@ -83,13 +83,23 @@
                             </div>
                         </form>
                         <hr/>
-                        <table class="table table-bordered" id="trans">
+                        @if(!empty($result))
+                        <form action="{{url('reports/mno-collection/export')}}">
+                            @csrf
+                            <button type="submit" class="btn btn-primary" id="tnx">Export Transaction</button>
+                            <button type="submit"  class="btn btn-primary"  id="summary">Export Summary</button>
+                            <input type="hidden" value="{{$start_date??''}}" name="start_date">
+                            <input type="hidden" value="{{$end_date??''}}" name="end_date">
+
+                        </form>
+                        @endif
+                        <table class="table table-bordered table-striped" id="trans">
 
                             <thead>
                             <tr>
-                                <th>MNO </th>
+                                <th>Channel </th>
                                 <th>Total amount</th>
-
+                                <th>Total Transaction</th>
                             </tr>
 
                             </thead>
@@ -101,6 +111,7 @@
                                 <tr>
                                     <td>{{$row->channel}}</td>
                                     <td>{{number_format($row->amount,0,'.',',')}}</td>
+                                    <th>{{$row->total}}</th>
 
                                 </tr>
 

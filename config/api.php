@@ -20,5 +20,6 @@ return [
     'TEST_WITH_DRAW_API'=>env('TEST_WITH_DRAW_API'),
     'LIVE_JASPER_SERVER'=>env('LIVE_JASPER_SERVER'),
     'TEST_JASPER_SERVER'=>env('TEST_JASPER_SERVER'),
+    'API2_URL'=>env('API2_URL'),
 
 ];

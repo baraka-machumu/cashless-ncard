@@ -3,210 +3,128 @@
 
 
 @section('content')
+    @can('view-report')
 
+        <div class="container-fluid">
+            <div class="row">
 
-
-
-
-
-    <div class="container-fluid">
-
-
-
-        <div class="row">
-
-
-
-            {{--column--}}
-            {{--<a href="{{url('success')}}" style="display: inline-block;">--}}
-                <div class="col-md-3 col-lg-3 col-xlg-3">
-                    <a href="{{url('consumer-transactions/deposits')}}" style="display: block;">
-                    <div class="card card-hover">
-                        <div class="box bg-success text-center">
-                            <h1 class="font-light text-white"><i class="mdi mdi-sale"></i></h1>
-                            <h6 class="text-white">All consumer deposits</h6>
-                        </div>
-                    </div>
-                    </a>
-
-                </div>
-            {{--</a>--}}
-
-            {{--column--}}
-                <div class="col-md-3 col-lg-3 col-xlg-3">
-                    <a href="{{url('consumer-transactions/payments')}}" style="display: block;">
-
-                    <div class="card card-hover">
-                    <div class="box bg-cyan text-center">
-                        <h1 class="font-light text-white"><i class="mdi mdi-currency-usd"></i></h1>
-                        <h6 class="text-white">All Consumer Payments</h6>
+                <div class="col-md-12">
+                    <div class="col-md-12" style="border: 2px solid #cdd1d3; height: 50px; line-height: 50px; margin-top: 5px;">
+                        <span class="page-title">Agent Transactions</span>
                     </div>
                 </div>
-                    </a>
-            </div>
+                <div class="col-lg-12">
+                    @foreach (['danger', 'warning', 'success', 'info'] as $msg)
+                        @if(Session::has('alert-' . $msg))
+
+                            <p class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }}
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close"></a></p>
+                        @endif
+                    @endforeach
+                    <div class="form-row">
+                        <div class="col-md-12" style="margin-top: 8px;">
+                            <hr/>
+                            <form method="post" action="{{url('View-Transactions/agent')}}">
+                                {{csrf_field()}}
+                                <div class="row">
+                                    <div class="col-md-2 form-group">
+                                        <label>Agent name</label>
+                                        <select name="agent_code"  class="form-control" id="agent-summary">
+                                            <option value="" selected disabled>--select agent--</option>
+                                            <option value="all" >All</option>
+                                            @foreach($agent as $row)
+                                                <option value="{{$row->agent_code}}"
+
+                                                        @if(old('agent_code')==$row->agent_code)
+                                                            selected
+                                                        @endif
+                                                >{{$row->first_name.' '.$row->last_name}}</option>
+                                            @endforeach
+
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label>Agent Code</label>
+                                        <input type="text" name="a_code" value="{{old('a_code')}}"
+                                               class="form-control" placeholder="Agent code">
+                                    </div>
+
+                                    <div class="col-md-3 form-group">
+                                        <label>Start date</label>
+                                        <input type="date" name="start_date" value="{{old('start_date')}}" class="form-control" placeholder="Start date">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label>End date</label>
+                                        <input type="date" name="end_date" value="{{old('end_date')}}" class="form-control" placeholder="End date">
+                                    </div>
+
+                                    <div class="col-md-2 form-group">
+                                        <label>Transaction type</label>
+                                        <select name="tnx_type"  class="form-control" id="agent-tnx">
+                                            <option value="" selected disabled>--select type--</option>
+                                            <option value="C">CREDIT</option>
+                                            <option value="D">DEBIT</option>
+                                            <option value="A">ALL</option>
+
+                                        </select>
+                                    </div>
 
 
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <button class="btn btn-info" type="submit" name="_xt-get">Search</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                    </div>
+                                </div>
+                            </form>
 
-        </div>
+                            <span style="font-weight: bold">@if($tnx_type=='C') CREDIT TRANSACTIONS
+                                @elseif($tnx_type=='D') DEBIT TRANSACTIONS @endif -> <?php echo count($result); ?></span>
+                            <hr/>
 
-
-        <div class="col-lg-12 show-user-details-2">
-
-            <span>Transactions</span>
-
-        </div>
-
-        <div class="row">
-
-
-            <div class="col-lg-12 table-margin-top">
-
-
-                {{--<table class="table table-bordered table-striped">--}}
-
-                    {{--<thead>--}}
-                    {{--<tr>--}}
-
-                        {{--<th>#</th>--}}
-
-                        {{--<th>Full Name</th>--}}
-                        {{--<th>Amount</th>--}}
-                        {{--<th>Status</th>--}}
-
-                        {{--<th>Actions</th>--}}
-                    {{--</tr>--}}
-                    {{--</thead>--}}
-
-                    {{--<tbody>--}}
-                    {{----}}
-                    {{--<tr>--}}
-                        {{--<td>{{1}}</td>--}}
-
-                        {{--<td>{{'Baraka Toe2'}}</td>--}}
-                        {{--<td>{{'Shopping'}}</td>--}}
-                        {{--<td>{{'M-pesa'}}</td>--}}
-                        {{--<td>{{'20000'}}</td>--}}
-                        {{--<td style="color: #c43007">{{'Failed'}}</td>--}}
-
-
-                        {{--<td>--}}
-                            {{--<a href="{{route('roles.show',1)}}" data-toggle="modal" data-target="#show-consumer-modal" class="btn btn-warning"><i class="fa fa-eye"></i></a>--}}
-
-                            {{--<a href="{{route('transactions.history',1)}}" class="btn btn-info"><i class="fa fa-history"></i></a>--}}
-
-                        {{--</td>--}}
-
-                    {{--</tr>--}}
-
-                    {{--</tbody>--}}
-                {{--</table>--}}
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    {{--MODEL EDIT--}}
-
-    <!-- Modal -->
-    <div class="modal fade bd-example-modal-lg" id="show-consumer-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <form method="post" action="#">
-
-            <div class="modal-dialog modal-lg" role="document" >
-                <div class="modal-content">
-                    <div class="modal-header modal-background">
-                        <h5 class="modal-title" id="exampleModalLabel">Transaction</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="col-md-12 show-user-details" style="margin-bottom: 10px;">
-
-                            <span>Details for Baraka toe</span>
-
+                            <table class="table table-bordered table-striped" id="trans">
+                                <thead>
+                                <tr>
+                                    <th>Agent Code </th>
+                                    <th>Amount</th>
+                                    <th>Previous Balance</th>
+                                    <th>Current Balance</th>
+                                    <th>Created</th>
+                                    <th>Created by</th>
+                                    <th>Reference</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($result as $row)
+                                    <tr>
+                                        <td>{{$row->agent_code}}</td>
+                                        <td>{{number_format($row->amount,0,'.',',')}}</td>
+                                        <td>{{number_format($row->previous_balance,0,'.',',')}}</td>
+                                        <td>{{number_format($row->current_balance,0,'.',',')}}</td>
+                                        <td>{{$row->created_at}}</td>
+                                        <td>{{$row->full_name}}</td>
+                                        <td>{{$row->reference}}</td>
+                                        <td>
+                                            <a href="{{url('view-Transactions/agent-tnx-print',[encrypt($row->id)])}}" class="btn btn-info">Print</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="row">
-
-
-                            <div class="col-lg-6">
-
-
-                                <table class="table table-striped">
-
-
-                                    <tbody>
-
-                                    <tr>
-                                        <th>Full Name</th>
-                                        <td>Baraka Toe</td>
-
-                                    </tr>
-
-                                    <tr>
-                                        <th>Merchant</th>
-                                        <td>Danube</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Service</th>
-                                        <td>Shopping</td>
-                                    </tr>
-
-
-                                    </tbody>
-                                </table>
-
-                            </div>
-
-
-                            <div class="col-lg-6">
-
-
-                                <table class="table table-striped">
-
-
-                                    <tbody>
-
-
-                                    <tr>
-                                        <th>Gateway</th>
-                                        <td>Tigo pesa</td>
-                                    </tr>
-
-                                    <tr>
-                                        <th>Amount</th>
-                                        <td>49000</td>
-                                    </tr>
-
-                                    <tr>
-                                        <th>Date</th>
-                                        <td>2019-09-09 3:40:00</td>
-                                    </tr>
-
-
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success">Reverse Transaction</button>
-                    </div>
-
-
-                    <div class="modal-footer">
-
                     </div>
                 </div>
             </div>
-        </form>
-
-    </div>
-
-
-
-
+        </div>
+    @endcan
+@stop
+@section('js')
+    <script>
+        $('#agent-summary').select2();
+        $('#trans').dataTable();
+    </script>
 @stop

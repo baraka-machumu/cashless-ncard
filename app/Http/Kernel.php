@@ -3,9 +3,13 @@
 namespace App\Http;
 
 use App\Http\Middleware\AgentManage;
+use App\Http\Middleware\CheckUserActive;
+use App\Http\Middleware\FirstLoginOrChangePwd;
 use App\Http\Middleware\ManageMerchants;
 use App\Http\Middleware\ManageTransafer;
 use App\Http\Middleware\ManageWallet;
+use App\Http\Middleware\ThrottleRequestsMiddleware;
+use App\Http\Middleware\TokenVerify;
 use App\Http\Middleware\ViewReports;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -37,12 +41,12 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\Localization::class,
-//            \Illuminate\Session\Middleware\StartSession::class
+           \Illuminate\Session\Middleware\StartSession::class
         ],
 
         'api' => [
@@ -73,6 +77,12 @@ class Kernel extends HttpKernel
         'transfer-m'=>ManageTransafer::class,
         'view-report'=>ViewReports::class,
         'manage-wallet'=>ManageWallet::class,
+        'user-is-active'=>CheckUserActive::class,
+        'firstLogin'=>FirstLoginOrChangePwd::class,
+        'session-timeout-check' => \App\Http\Middleware\CheckSessionTimeout::class,
+        'token'=>TokenVerify::class,
+        'custom-th'=>ThrottleRequestsMiddleware::class
+
 
     ];
 

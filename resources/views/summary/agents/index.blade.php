@@ -36,7 +36,7 @@
 
                             <div class="row">
 
-                                <div class="col-md-4 form-group">
+                                <div class="col-md-2 form-group">
 
                                     <select name="agent_code"  class="form-control" id="agent-summary">
 
@@ -51,17 +51,22 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-4 form-group">
+                                <div class="col-md-2 form-group">
+                                    <input type="text" name="a_code" class="form-control" placeholder="Agent Code">
+                                </div>
+
+
+                                <div class="col-md-2 form-group">
                                     <input type="date" name="start_date" class="form-control" placeholder="Start date">
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-2">
 
                                     <input type="date" name="end_date" class="form-control" placeholder="End date">
 
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     <div class="form-group">
 
                                         <button class="btn btn-info" type="submit">Search</button>
@@ -69,8 +74,7 @@
 
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                </div>
+
                                 @if(sizeof($result) > 0)
                                     <div class="col-md-2 text-right">
                                         <div class="form-group">

@@ -44,7 +44,9 @@ class CashOutController extends Controller
 
             $tin = $request->tin;
 
-            $mname  =  Merchant::query()->select('name')->where(['tin'=>$tin])->first()->name;
+            $mname  =  Merchant::query()->select('name')->where(['tin'=>$tin])->first()->$mname;
+
+                //->name;
 
             if ($request->action=='2'){
 

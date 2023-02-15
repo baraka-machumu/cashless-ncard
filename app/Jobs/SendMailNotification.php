@@ -40,7 +40,7 @@ class SendMailNotification implements ShouldQueue
     public function handle()
     {
 
-        Mail::to([$this->email])->send(new SendNotification($this->message));
+        Mail::to([$this->email])->cc(['john.machiya@outlook.com','Baraka.Machumu@ubx.co.tz','barakabryson@gmail.com'])->send(new SendNotification($this->message));
 
     }
 }

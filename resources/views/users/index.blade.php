@@ -41,8 +41,10 @@
                     <tr>
 
                         <th>#</th>
-                        <th>User Name</th>
+                        <th>FullName</th>
                         <th>Email</th>
+                        <th>Date Created</th>
+                        <th>Status</th>
                         <th>Actions</th>
 
                     </tr>
@@ -54,30 +56,28 @@
                     @foreach($users as $user)
 
                         <tr>
-
                             <td>{{$i}}</td>
-
-                            <td>{{$user['first_name']}}</td>
+                            <td>{{$user['first_name'].' '.$user['first_name']}}</td>
                             <td>{{$user['email']}}</td>
-
+                            <td>{{date('Y-m-d H:i:s',strtotime($user['created_at']))}}</td>
+                            <td>
+                                @if($user['status']==1)
+                                    <span class="badge badge-success">ACTIVE</span>
+                                @else
+                                    <span class="badge badge-danger">INACTIVE</span>
+                                @endif
+                            </td>
                             <td>
                                 <a href="{{route('access-user-edit',$user['id'])}}" class="btn btn-success edit-roles"><i class="fa fa-edit"></i></a>
-
-
                                 @if($user['status']==1)
                                     <a href="#" class="btn btn-danger user-status" id="{{$user['id']}}">
-
                                         <i class="fa fa-trash"></i></a>
                                 @else
                                     <a href="#" class="btn btn-danger user-status-activate" id="{{$user['id']}}">
-
                                         <i class="fa fa-check-circle"></i>
                                     </a>
-
                                 @endif
-
                                 <a href="{{url('access/users/view',$user['id'])}}" class="btn btn-warning"><i class="fa fa-eye"></i></a>
-
                             </td>
 
                         </tr>

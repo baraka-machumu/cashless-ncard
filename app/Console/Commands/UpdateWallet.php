@@ -46,30 +46,26 @@ class UpdateWallet extends Command
     {
 
         $count = $this->argument('count');
-
-
-        $id  =  5000000000005000;
-
+        $id  =  6000000000005000;
 
       for ($i=0; $i<$count; $i++){
-
-         $vnumber  = VendorVirtualCard::query()->select('id','card_number')->orderBy('id','desc')->first();
-
+         $vnumber  = VendorVirtualCard::query()->select('id','card_number')
+             ->where(['init'=>'T'])
+             ->orderBy('id','desc')->first();
 
          if (!$vnumber){
-
              $card_number  =  $id;
-
          }
+
           else{
 
               $card_number  =  $vnumber->card_number+1;
           }
 
-
           $cardSave  = new VendorVirtualCard();
 
           $cardSave->card_number  =  $card_number;
+          $cardSave->init  =  'T';
           $cardSave->save();
 
       }

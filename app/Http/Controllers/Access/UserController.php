@@ -392,18 +392,13 @@ class UserController extends Controller
 
     public  function  resetPassword(Request $request){
         if (!Gate::allows('manage-user')) {
-
             return view('errors.login_access');
-
         }
         $userId  =  $request->userId;
-
         $user  =  User::query()->where(['id'=>$userId])->first();
 
         try{
-
             if (!$user){
-
                 Session::flash('alert-danger', 'Invalid user');
 
             } else {
@@ -415,6 +410,7 @@ class UserController extends Controller
                 $message = 'Password yako ya kuingia kwenye mfumo ni '.$password;
 
                 $user->password  = Hash::make($password);
+                $user->password_reset=1;
                 $user->save();
 
                 SmsHelper::sendSms($message,$msisdn);

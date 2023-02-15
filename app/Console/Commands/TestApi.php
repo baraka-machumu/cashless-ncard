@@ -53,12 +53,12 @@ class TestApi extends Command
 
 
         try {
+
             foreach ($cards as $index=>$row){
 
                 echo 'Index No '.($index+1)."\r\n";
 
                 $vnumber  = VendorVirtualCard::query()->select('id','card_number')->where(['status'=>0])->first();
-
 
                 $cc  =  Card::query()->where(['virtual_vendor_card_number'=>$row->card_number])->first();
 

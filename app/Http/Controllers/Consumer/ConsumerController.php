@@ -145,7 +145,7 @@ class ConsumerController extends Controller
 
         $consumer= DB::table('consumers')
             ->where('consumer_wallets.wallet_id',$wallet_id)
-            ->select('consumer_cards.card_number','consumer_wallets.wallet_id','consumers.agent_code','consumers.phone_number','consumers.first_name',
+            ->select('consumers.id as id','consumer_cards.card_number','consumer_wallets.wallet_id','consumers.agent_code','consumers.phone_number','consumers.first_name',
                 'consumers.last_name','consumers.email','consumers.location','genders.name as gname','consumers.dob','consumer_wallets.amount','consumer_wallets.consumers_status_id as status',
                 'consumers.created_at','status.name as sname','consumers.status_id as status_id')
             ->join('genders','genders.id','=','consumers.gender_id')
@@ -172,16 +172,33 @@ class ConsumerController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
-        //
+        if (!Gate::allows('manage-consumer')) {
+
+            return redirect('error-access');
+
+        }
+        $first_name  =  $request->first_name;
+        $last_name  =  $request->last_name;
+        $phone_number  =  $request->phone_number;
+
+        $consumer  = Consumer::where(['id'=>$id])->first();
+
+        $consumer->first_name  =  $first_name;
+        $consumer->last_name  =  $last_name;
+        $consumer->phone_number  =  $phone_number;
+        $success  = $consumer->save();
+
+        if ($success){
+            Session::flash('alert-success','Successful updated');
+        } else{
+            Session::flash('alert-danger','failed to update');
+
+        }
+
+        return back();
     }
 
     /**

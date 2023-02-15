@@ -50,94 +50,114 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-6">
-                <table class="table table-striped">
-                    <tbody>
-                    <tr>
-                        <th>First Name</th>
-                        <td>{{$consumer->first_name}}</td>
 
-                    </tr>
+            <form method="post" action="{{url('consumers/update',$consumer->id)}}">
 
-                    <tr>
-                        <th>Last Name</th>
-                        <td>{{$consumer->last_name}}</td>
-                    </tr>
+                {{csrf_field()}}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <table class="table table-striped">
+                            <tbody>
+                            <tr>
+                                <th>First Name</th>
+                                <td>
+                                    <input type="text"  name="first_name" value="{{$consumer->first_name}}">
+                                </td>
 
-                    <tr>
-                        <th>Gender</th>
-                        <td>{{$consumer->gname}}</td>
-                    </tr>
-                    <tr>
+                            </tr>
 
-                        <th>Date of Birth</th>
-                        <td>{{$consumer->dob}}</td>
-                    </tr>
-                    <tr>
+                            <tr>
+                                <th>Last Name</th>
+                                <td>
+                                    <input type="text"  name="last_name" value="{{$consumer->last_name}}">
 
-                        <th>Total Payments</th>
-                        <td>{{$payments}}</td>
-                    </tr>
+                                </td>
+                            </tr>
 
-                    </tbody>
-                </table>
+                            <tr>
+                                <th>Last Name</th>
+                                <td>
+                                    <input type="number"  name="phone_number" value="{{$consumer->phone_number}}">
 
-                {{--button to open modal for adding pos--}}
-                <a  class="btn btn-success" id="add-agent-pos" data-toggle="modalss" href="#add-pos-modal88">Transactions</a>
+                                </td>
+                            </tr>
 
-                <a  class="btn btn-danger reset-password" id=""  href="#add-pos">Reset password</a>
+                            <tr>
+                                <th>Gender</th>
+                                <td>{{$consumer->gname}}</td>
+                            </tr>
+                            <tr>
+
+                                <th>Date of Birth</th>
+                                <td>{{$consumer->dob}}</td>
+                            </tr>
+                            <tr>
+
+                                <th>Total Payments</th>
+                                <td>{{$payments}}</td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                        {{--button to open modal for adding pos--}}
+                        <a  class="btn btn-success" id="add-agent-pos" data-toggle="modalss" href="#add-pos-modal88">Transactions</a>
+
+                        <a  class="btn btn-danger reset-password" id=""  href="#add-pos">Reset password</a>
+
+                        <button type="submit" class="btn btn-info">Update</button>
+
+                    </div>
+
+                    <div class="col-lg-6">
+
+                        {{--<div class="col-md-12">--}}
+
+                        <table class="table table-striped">
+
+                            <tbody>
+
+                            <tr>
+                                <th> Agent Number</th>
+                                <td>{{$consumer->agent_code}}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{$consumer->email}}</td>
+                            </tr>
 
 
-            </div>
+                            <tr>
+                                <th>Location</th>
+                                <td>{{$consumer->location}}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>{{$consumer->sname}}</td>
+                            </tr>
 
-            <div class="col-lg-6">
+                            <tr>
+                                <th>Total Deposits</th>
+                                <td>{{$deposits}}</td>
+                            </tr>
 
-                {{--<div class="col-md-12">--}}
+                            </tbody>
+                        </table>
+                        <div class="form-group">
 
-                <table class="table table-striped">
+                            {{--<a href="{{route('agents.edit',$consumer->agent_code)}}" id="{{ $consumer->agent_code}}"   class="btn btn-success"><i class="fa fa-edit"></i></a>--}}
+                            <a  href="{{url()->previous()}}" style="margin-top: 0px;" class="btn btn-info" name="edit-merchant">Back</a>
 
-                    <tbody>
+                        </div>
 
-                    <tr>
-                        <th> Agent Number</th>
-                        <td>{{$consumer->agent_code}}</td>
-                    </tr>
-                    <tr>
-                        <th>Email</th>
-                        <td>{{$consumer->email}}</td>
-                    </tr>
+                        {{--</div>--}}
 
 
-                    <tr>
-                        <th>Location</th>
-                        <td>{{$consumer->location}}</td>
-                    </tr>
-                    <tr>
-                        <th>Status</th>
-                        <td>{{$consumer->sname}}</td>
-                    </tr>
-
-                    <tr>
-                        <th>Total Deposits</th>
-                        <td>{{$deposits}}</td>
-                    </tr>
-
-                    </tbody>
-                </table>
-                <div class="form-group">
-
-                    {{--<a href="{{route('agents.edit',$consumer->agent_code)}}" id="{{ $consumer->agent_code}}"   class="btn btn-success"><i class="fa fa-edit"></i></a>--}}
-                    <a  href="{{url()->previous()}}" style="margin-top: 0px;" class="btn btn-info" name="edit-merchant">Back</a>
+                    </div>
 
                 </div>
+            </form>
 
-                {{--</div>--}}
-
-
-            </div>
-
-        </div>
 
     </div>
 

@@ -37,6 +37,38 @@
 
             <div class="col-lg-12 table-margin-top">
 
+                <form action="{{url('consumers/search-data/get-all')}}" method="get">
+
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <label>Wallet ID</label>
+                            <input type="text" name="walletId" class="form-control">
+
+                        </div>
+
+                        <div class="col-md-3">
+                            <label>Phone number</label>
+
+                            <input type="text" name="phone_number" class="form-control">
+
+                        </div>
+
+                        <div class="col-md-3">
+                            <label>Fullname</label>
+
+                            <input type="text" name="fullname" class="form-control">
+
+                        </div>
+
+                        <div class="col-md-2">
+
+                            <button type="submit" style="margin-top: 23px;" class="btn btn-info">Search</button>
+
+                        </div>
+                    </div>
+                </form>
 
                 <table class="table table-bordered table-striped" id="consumer">
 

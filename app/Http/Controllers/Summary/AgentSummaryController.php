@@ -18,6 +18,10 @@ class AgentSummaryController extends Controller
         $start_date  =  $request->start_date;
         $end_date  =  $request->end_date;
 
+        if (!empty($request->a_code)){
+
+            $agentCode =  $request->a_code;
+        }
         if ($agentCode!=null){
 
             $result= DB::select('call GetAgentSummarySp(?,?,?)',array($agentCode,$start_date,$end_date));

@@ -65,28 +65,19 @@ class PosController extends Controller
         return redirect('pos');
     }
     public  function  store(Request $request){
-
         $imei_no  = $request->pos;
-
         $imei_no_search  = $request->imei_no_search;
-
         if (isset($_POST['imei-search'])){
 
-
             if (empty($imei_no_search)){
-
                 Session::flash('alert-danger','Imei number is required');
-
                 return back();
             }
+
             $check  =  Pos::query()->where(['imei_no'=>$imei_no_search])->first();
-
             if (!$check){
-
                 Session::flash('alert-danger','Not Found');
-
                 return back();
-
             }
 
             return view('pos.reset',compact('imei_no_search'));
@@ -94,21 +85,27 @@ class PosController extends Controller
 
 
         if (empty($imei_no)){
-
             Session::flash('alert-danger','Imei number is required');
-
-            return back();
-        }
-
-        if((strlen($imei_no)!=15)){
-
-            Session::flash('alert-danger','Invalid pos number');
             return back();
         }
 
         if (!is_numeric($imei_no)){
-            Session::flash('alert-danger','Invalid pos number');
-            return back();
+
+            if(strlen($imei_no)>30){
+
+                Session::flash('alert-danger','Invalid pos number');
+                return back();
+            }
+
+        }
+
+        else{
+
+            if(strlen($imei_no)<15){
+
+                Session::flash('alert-danger','Invalid pos number');
+                return back();
+            }
         }
         $check  =  Pos::query()->where(['imei_no'=>$imei_no])->first();
 
@@ -117,6 +114,8 @@ class PosController extends Controller
             Session::flash('alert-danger','Pos Exist');
             return back();
         }
+
+
 
         $pos  = new Pos();
         $pos->imei_no  =  $imei_no;

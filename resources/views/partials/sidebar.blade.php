@@ -18,7 +18,7 @@
                 {{--                    </a>--}}
                 {{--                </li>--}}
 
-                @cannot('low-account')
+{{--                @cannot('low-account')--}}
                 <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-settings"></i><span class="hide-menu">Management</span></a>
                     <ul aria-expanded="false" class="collapse  first-level">
 
@@ -61,11 +61,10 @@
 
                         @endcan
 
-
                     </ul>
                 </li>
 
-                @endcannot
+{{--                @endcannot--}}
 
                 <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
                         <i class="mdi mdi-settings"></i><span class="hide-menu">Advanced</span></a>
@@ -163,8 +162,17 @@
 
                                 <li class="sidebar-item"><a href="{{url('View-Transactions/consumer')}}" class="sidebar-link"><i class="mdi mdi-note-outline">
 
-                                        </i><span class="hide-menu">Get Consumer Transactions</span></a>
+                                        </i><span class="hide-menu">Consumer Transactions</span></a>
+                                </li>
 
+                            <li class="sidebar-item"><a href="{{url('View-Transactions/agent')}}" class="sidebar-link"><i class="mdi mdi-note-outline">
+
+                                    </i><span class="hide-menu">Agent Transactions</span></a>
+                            </li>
+                            <li class="sidebar-item"><a href="{{url('tnx-recon/verify')}}" class="sidebar-link"><i class="mdi mdi-note-outline">
+
+                                    </i><span class="hide-menu">Verify Transaction(s)</span></a>
+                            </li>
 
                         </ul>
                     </li>

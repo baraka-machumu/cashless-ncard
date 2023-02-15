@@ -15,6 +15,7 @@ use App\AgentWallet;
 use App\District;
 use App\FeeDisbursmentAccount;
 use App\Gender;
+use App\Helper\ApiHelper;
 use App\Helper\DataEncryption;
 use App\Helper\RandomGenerator;
 use App\Helper\SmsHelper;
@@ -49,63 +50,60 @@ class AgentsController extends Controller
     }
     public  function  topup(Request $request){
 
-        
-   if (!Gate::allows('agent-topup')) {
+        $validator = Validator::make($request->all(),
+            [
+                'amount' => 'required|min:0|max:20000000',
+            ]);
 
-       return  redirect('error-access');
+        if ($validator->fails()){
+            Session::flash('alert-danger',$validator->errors());
+            return back()->withInput();
+        }
 
+        if (!Gate::allows('agent-topup')) {
+            return  redirect('error-access');
 
-   }
+        }
         Log::channel('tx-agent-deposit')->error('Successful top up : '.json_encode($request));
-
+        $is_success_on_agent_api =0;
         $agent_code =  $request->agent_code;
         $amount =  $request->amount ;
-
-        $aggregator_wallet  =  $request->aggregator_code;
-
-        $channel_reference  = RandomGenerator::referenceNumber($agent_code);
-
+        $channel_reference  = $request->reference;
         $timestamp  =  Carbon::now('Africa/Nairobi')->format('Y-m-d h:i:s');
-
         $timestamp  = date('Y-m-d\TH:i:s'.'\Z');
 
-//        $ncard_agent_code = $request->agent_code_ncard;
+        $reference  =  RandomGenerator::referenceNumber($agent_code);
+        $channel_reference = $channel_reference.'-'.$reference;
+        $agent  = AgentWallet::where(['agents_code'=>$agent_code])->first();
 
-
-//        $ncardResponse  =  TpesaNcardFund::saveRecord($amount,$channel_reference,$agent_code,$timestamp,$aggregator_wallet,null,$ncard_agent_code);
-//
-//        if ($ncardResponse['code']!=TpesaNcardFund::SUCCESS){
-//
-//            Session::flash('alert-danger',' '.$ncardResponse['message']);
-//
-//            return redirect('/agents/'.$ncard_agent_code);
-//
-//        }
+        if (!$agent){
+            Session::flash('alert-danger','agent does not exist');
+            return back();
+        }
 
         try{
 
-            DB::beginTransaction();
+            /**
+             * CALL PROCEDURE TO SAVE THE LOGS FIRST
+             * `PortalSaveRequestTopupSP`(agentCode VARCHAR(10),refNo VARCHAR(100),amountTx DECIMAL(40,2),
+            userRefNo VARCHAR(100),userId BIGINT)
 
-            $agent  = AgentWallet::where(['agents_code'=>$agent_code])->first();
+             */
 
+            $res =  DB::select('call PortalSaveRequestTopupSP(?,?,?,?,?)',
+                [$agent_code,$reference,$amount,$channel_reference,Auth::user()->id]);
 
-            if (!$agent){
-
-                Session::flash('alert-danger','agent does not exist');
-
+            if ($res[0]->status_code!='300'){
+                Session::flash('alert-danger',$res[0]->message);
                 return back();
-
             }
 
+            DB::beginTransaction();
 
             $previousBalance =  $agent->amount;
-
             $currentBalance = $previousBalance+$amount;
 
             $agentDeposit  =  new AgentDeposit();
-
-            $reference  =  RandomGenerator::referenceNumber($agent_code);
-
             $agentDeposit->agent_wallet_id =  $agent_code;
             $agentDeposit->amount =  $amount;
             $agentDeposit->tx_channel_reference =  $channel_reference;
@@ -114,39 +112,72 @@ class AgentsController extends Controller
             $agentDeposit->reference  = $reference;
             $agentDeposit->created_by  = Auth::user()->id;
             $agentDeposit->source_wallet_number  =  '008008';
+            $agentDeposit->api2_response_code  =  '00'; //means pending , //10 means send., 11 means successful , 12 means failed
 
             $agentDeposit->save();
 
             $agent->amount  =  $currentBalance;
             $agent->previous_balance =  $previousBalance;
-            $agent->save();
+            $req=$agent->save();
 
             Log::channel('tx-agent-deposit')->error('Successful top up : '.$agent_code);
 
             $desc  = "Topup agent from browser.";
 
-             DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$agent_code,'AGENT','SAVE'));
+            DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$agent_code,'AGENT','SAVE'));
 
-            DB::commit();
+            //CALL API2 TO SEND THE TRANSACTION
 
-            Session::flash('alert-success','successful credited');
+//            $payload  = [
+//                'agent_code'=>$agent_code,
+//                'super_agent'=>'123456',
+//                'slip_path'=>$agent_code,
+//                'amount'=>$amount,
+//                'date'=>$agentDeposit->created_at,
+//                'source_wallet'=>'123456',
+//                'refNo'=>$reference
+//            ];
+//
+//            $result  =  ApiHelper::sendAgentTopup($payload);
+//
+//            $is_success_on_agent_api  =  '01';
+//            $response_ref_number = null;
+//            if ($result->status_code==300){
+//                $is_success_on_agent_api  =  '00';
+//                $response_ref_number=$result->data->OutTrxRefNo;
+//            }
+//
+//            $req=DB::table('agent_topup_request_logs')
+//                ->where(['ref_no'=>$reference,'agent_code'=>$agent_code])
+//                ->update(['response_dump'=>json_encode($result),
+//                    'response_code'=>$result->status_code,
+//                    'response_ref_number'=>$response_ref_number,
+//                    'message'=>'Success'
+//                ]);
+
+            if ($req){
+
+                DB::commit();
+                Session::flash('alert-success','successful credited');
+
+            }
+            else{
+                DB::rollBack();
+                Session::flash('alert-danger','Request could not complete.');
+            }
 
             return redirect('/agents/'.$agent_code);
-
 
         }
 
-        catch (\Exception $exception){
+        catch (\Throwable $exception){
 
             DB::rollBack();
-            Log::channel('tx-agent-deposit')->error('Server error topnup agent : '.json_encode($exception));
-
-            Session::flash('alert-danger','could not credit agent '.$exception->getMessage());
-
+//            DB::table('agent_topup_request_logs')
+//                ->where(['ref_no'=>$reference])->update(['message'=>'Internal Server Error Ncard code '.$is_success_on_agent_api]);
+//            Log::error('AGENT-TOPUP-ERROR',['MESSAGE'=>$exception]);
+            Session::flash('alert-danger','Server Error');
             return redirect('/agents/'.$agent_code);
-
-//            return response(['resultcode'=>'01','message'=>'could not credit agent '.$exception->getMessage()]);
-
 
         }
 
@@ -159,14 +190,9 @@ class AgentsController extends Controller
     public function index()
     {
 
-
         Log::channel('tx-agent-deposit')->info('Wireless connected');
-
         $desc  = "View all agents activity";
-
         DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,"ALL",'AGENT','VIEW'));
-
-
         $agents =  DB::table('agents')
             ->select('ap.imei_no','agents.first_name','agents.last_name','agents.location','agents.email',
                 'agents.agent_code','agents.status_id','status.name as sname','agents.phone_number')
@@ -174,17 +200,10 @@ class AgentsController extends Controller
 
             ->join('status','status.id','agents.status_id')->get();
 
-
-
         $regions  =  DashboardController::getRegions();
-
         $genders  = Gender::all()->toArray();
-
         $banks  =  Bank::all()->toArray();
-
         $branches  =  BankBranch::all()->toArray();
-
-
         return view('agents.index',compact('agents','regions','genders','banks','branches'));
 
     }
@@ -206,15 +225,12 @@ class AgentsController extends Controller
 //        $top_source  = DB::table('top_up_sources')->get();
 
         $top_source  =  array();
-
         $genders  = Gender::all()->toArray();
-
         return view('agents.create',compact('regions','genders','top_source'));
     }
 
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->all(),
             [
                 'first_name' => 'required',
@@ -226,114 +242,104 @@ class AgentsController extends Controller
                 'agent_code'=> 'required',
                 'pin'=>'required',
                 // 'top_up_source'=>'required'
-
             ]);
 
         if ($validator->fails()){
-
             Session::flash('alert-danger','All Field(s) Are Required '.$validator->errors());
             return redirect('agents/create')->withInput();
-
         }
+        $check_success =false;
+        DB::beginTransaction();
 
-        $district_id  =  $request->get('district_id');
-        $first_name  =  $request->get('first_name');
-        $middle_name  =  $request->get('middle_name');
-        $last_name  =  $request->get('last_name');
-        $gender  =  $request->get('gender');
-        $dob =  $request->get('dob');
-        $location =  $request->get('location');
-        $email  =  $request->get('email');
-        $phone_number  =  $request->get('phone_number');
-        $pin  =  $request->get('pin');
-        $top_up_source  = $request->top_up_source;
+        try {
+            $district_id  =  $request->get('district_id');
+            $first_name  =  $request->get('first_name');
+            $middle_name  =  $request->get('middle_name');
+            $last_name  =  $request->get('last_name');
+            $gender  =  $request->get('gender');
+            $dob =  $request->get('dob');
+            $location =  $request->get('location');
+            $email  =  $request->get('email');
+            $phone_number  =  $request->get('phone_number');
+            $pin  =  $request->get('pin');
+            $top_up_source  = $request->top_up_source;
+            $code = $request->get('agent_code');
+            $checkPhone =  Agent::query()->where(['phone_number'=>$phone_number])->first();
+            $checkCode =  Agent::query()->where(['agent_code'=>$code])->first();
 
-        $code = $request->get('agent_code');
-
-        $checkPhone =  Agent::query()->where(['phone_number'=>$phone_number])->first();
-
-        $checkCode =  Agent::query()->where(['agent_code'=>$code])->first();
-
-        if ($checkCode){
-
-            Session::flash('alert-danger', 'Agent Code exist');
-
-            return back();
-        }
-        if ($checkPhone){
-
-            Session::flash('alert-danger', 'Phone Number exist');
-
-            return back();
-        }
-
-//        DB::beginTransaction();
-//
-//        try {
-        $agent = new Agent();
-        $agent->first_name = $first_name;
-        $agent->middle_name = $middle_name;
-        $agent->last_name = $last_name;
-        $agent->gender_id = $gender;
-        $agent->location = $location;
-        $agent->email = $email;
-        $agent->phone_number = $phone_number;
-        $agent->district_id = $district_id;
-
-        $agent->agent_code = $code;
-        $agent->created_by  = Auth::user()->id;
-
-
-        $success = $agent->save();
-
-        $wallet = new AgentWallet();
-
-        $wallet->agents_code = $code;
-        $wallet->amount = 0;
-        $wallet->pin = Hash::make($pin);
-        $wallet->top_up_source  =  $top_up_source;
-        $wallet_success = $wallet->save();
-
-        if ($success & $wallet_success) {
-
-            Session::flash('alert-success', $first_name . ' ' . $last_name . ' Agent wallet Successful created');
-
-            $posAdmin =  new PosAdminAgent();
-
-            $pin  =   DataEncryption::agentPinEncryption($code);
-
-            $posAdmin->agent_code = $code;
-//            $posAdmin->pin  =Hash::make($code);
-            $posAdmin->pin  =$pin;
-
-            $success =  $posAdmin->save();
-
-            if ($success){
-
-                Session::flash('alert-success', $first_name . ' ' . $last_name . ' Agent wallet Successful created');
-
+            if ($checkCode){
+                Session::flash('alert-danger', 'Agent Code exist');
             }
+            if ($checkPhone){
+                Session::flash('alert-danger', 'Phone Number exist');
+            }
+            $agent = new Agent();
+            $agent->first_name = $first_name;
+            $agent->middle_name = $middle_name;
+            $agent->last_name = $last_name;
+            $agent->gender_id = $gender;
+            $agent->location = $location;
+            $agent->email = $email;
+            $agent->phone_number = $phone_number;
+            $agent->district_id = $district_id;
 
-            else {
+            $agent->agent_code = $code;
+            $agent->created_by  = Auth::user()->id;
+            $success = $agent->save();
 
+            $wallet = new AgentWallet();
+
+            $wallet->agents_code = $code;
+            $wallet->amount = 0;
+            $wallet->pin = Hash::make($pin);
+            $wallet->top_up_source  =  $top_up_source;
+            $wallet_success = $wallet->save();
+
+            if ($success & $wallet_success) {
+
+                $posAdmin =  new PosAdminAgent();
+                $pin  =   DataEncryption::agentPinEncryption($code);
+                $posAdmin->agent_code = $code;
+                $posAdmin->pin  =$pin;
+                $success =  $posAdmin->save();
+                if ($success){
+                    $check_success =true;
+                }
+                else {
+                    Session::flash('alert-danger', 'Agent Wallet Failed To be Created');
+                }
+
+            } else {
                 Session::flash('alert-danger', 'Agent Wallet Failed To be Created');
-
-
             }
 
-            return redirect('agents/'.$code);
+            $desc  = "save agent to database";
+            /**
+             * SEND REQUEST TO LIPA.KIMTANDAO.CO.TZ API
+             */
 
-        } else {
+            if ($check_success){
+                $message = 'Agent wallet Successful created';
+                DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$code,'AGENT','SAVE'));
+                DB::commit();
+                $resultApi= ApiHelper::sendAgentInfo($code);
 
-            Session::flash('alert-danger', 'Agent Wallet Failed To be Created');
+                if ($resultApi->status_code!='300'){
+                    $message = $message.' But Failed to update to new lipa system agent';
+                }
 
+                Session::flash('alert-success',$message);
+                return  redirect('agents/'.$code);
+            }
+
+            DB::rollBack();
+            return  back()->withInput();
+        }catch (\Throwable $exception){
+            Log::error('AGENT-EX',['MESSAGE'=>$exception]);
+            DB::rollBack();
+            Session::flash('alert-danger','Server error');
+            return  back()->withInput();
         }
-
-        $desc  = "save agent to database";
-
-        DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$code,'AGENT','SAVE'));
-
-        return redirect()->route('show',[$code]);
     }
 
     public  function  storeAdditionalAgentPos(Request $request){
@@ -403,7 +409,7 @@ class AgentsController extends Controller
 
             DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$agent_code,'AGENT','SAVE'));
 
-           // MailController::sendMail($email,$password,$imei_no[0]);
+            // MailController::sendMail($email,$password,$imei_no[0]);
 
             Session::flash('alert-success',' Pos  successful added');
 
@@ -465,7 +471,9 @@ class AgentsController extends Controller
 
             DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$agent_code,'AGENT','VIEW'));
 
-            return view('agents.show_agent',compact('account','agent_wallet','agent_code','pos','agent_pos','agent','balance','banks','branches'));
+            $failed_log_tx     =  DB::select('call GetLatestFailedAgentToupSP(?)',[$agent_code]);
+
+            return view('agents.show_agent',compact('failed_log_tx','account','agent_wallet','agent_code','pos','agent_pos','agent','balance','banks','branches'));
 
         } catch (\Throwable $exception){
 

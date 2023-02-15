@@ -26,7 +26,16 @@
         <div class="row">
             <div class="col-md-12" style="margin-bottom: 10px;">
             <div class="col-md-12" style="border: 2px solid #cdd1d3; margin-top: 5px; height: 50px; ">
-                <h4 class="page-title" style="line-height: 50px;">Dashboard</h4>
+                <h4 class="page-title" style="line-height: 50px;">Dashboard
+
+                    <span style="float: right;font-weight: normal; font-size: 14px; font-style: italic">
+
+                    LAST LOGIN {{auth()->user()->last_login_date??'N/A'}}
+
+                </span>
+                </h4>
+
+
             </div>
         </div>
             {{--column--}}

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Support;
 
 use App\Agent;
+use App\Helper\CardHelper;
 use App\Helper\RandomGenerator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -47,14 +48,25 @@ class CustomerSupportController extends Controller
         $cardNo =  $request->cardNo;
 
         if (empty($phone_number) and empty($wallet_number) and  empty($cardNo)){
-
             Session::flash('alert-warning','please fill at least one field');
-
             return back()->withInput();
-
         }
 
         if (empty($phone_number) and empty($wallet_number)){
+
+
+            $pref = array('T','C');
+
+            if(!is_numeric($cardNo)){
+
+                $cardNo  =  CardHelper::getCardNumberUsingVendorNumber($cardNo);
+
+                if (!$cardNo){
+                    Session::flash('alert-warning','No data found');
+                    return back()->withInput();
+                }
+
+            }
 
             $walletCard  =   DB::table('consumer_cards as cc')
                 ->select('c.phone_number','cc.card_number','wallet_id')
@@ -62,6 +74,8 @@ class CustomerSupportController extends Controller
                 ->join('consumers as c','c.id','cw.consumers_id')
                 ->where(['cc.card_number'=>$cardNo])
                 ->first();
+
+
 
             if (!$walletCard){
 
@@ -192,7 +206,12 @@ class CustomerSupportController extends Controller
 
             $Name  =  Agent::query()->select('first_name','last_name')->where(['agent_code'=>$walletDetails->agent_code])->first();
 
-            $agentName =  $Name->first_name.'  '.$Name->last_name;
+            if ($Name){
+                $agentName =  $Name->first_name.'  '.$Name->last_name;
+
+            } else{
+                $agentName = null;
+            }
 
         }
 //        return response()->json($walletDetails);

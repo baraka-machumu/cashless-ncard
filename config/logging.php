@@ -54,6 +54,7 @@ return [
             'level' => 'debug',
             'days' => 14,
             'permission' => 0777,
+            'log_max_files'=>5
 
         ],
 

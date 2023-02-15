@@ -28,7 +28,7 @@
                         @endif
                     @endforeach
 
-                    <form method="post" action="{{url('login')}}">
+                    <form method="post" action="{{url('auth/login')}}">
                         {{csrf_field()}}
 
 
@@ -56,32 +56,15 @@
                                     <span class="input-group-text"><i class="fas fa-key"></i></span>
                                 </div>
                                 {{--<label for="email">Email</label>--}}
-
                                 <input type="password"  name="password" id="login-password2w" required class="form-control input_userw" value="" placeholder="password">
-
                             </div>
                             <small class="text-danger">{{ $errors->first('password') }}</small>
-
-
                         </div>
-
-
                     <div class="d-flex justify-content-center mt-3 login_container">
                         <button type="submit" name="button"  id="login-btn2" class="btn login_btn">Login</button>
                     </div>
-                    <div class="mt-4">
-
-                        <div class="d-flex justify-content-center links">
-                            <a href="#">Forgot your password?</a>
-                        </div>
-                    </div>
-
                     </form>
-
                 </div>
-
-
-                {{--</form>--}}
 
             </div>
         </div>

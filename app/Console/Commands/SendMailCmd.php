@@ -42,7 +42,6 @@ class SendMailCmd extends Command
         $email  =  $this->argument('email');
         $message  =  $this->argument('message');
 
-        echo $message."\n";
         MailController::sendMailMessage($email,$message);
 
         echo "send..";

@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -52,5 +53,8 @@ class SmsHelper
 
     }
 
+    public  function  saveSms($data){
+    DB::select('CALL SaveSmsSP(?,?)',[$data['message'],$data['phone_number']]);
+    }
 
 }

@@ -4,6 +4,8 @@
 namespace App\Helper;
 
 
+use App\Agent;
+use App\AgentWallet;
 use DateTime;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -11,6 +13,9 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class ApiHelper
@@ -83,92 +88,68 @@ class ApiHelper
     }
 
 
-    public  static function  xml($utilityref,$cellid,$transid,$amount,$msisdn,$sender,$timestamp,$checksum){
+    public  static  function  sendAgentTopup($Payload){
 
-        /**
-         * ceiid ni pos  number
-         */
-        $xml  =  "<?xml version='1.0'?>
-<methodCall>
-    <methodName>KWAVA.Pay</methodName>
-    <params>
-        <param>
-            <value>
-                <struct>
-                
-                     <member>
-                        <name>pin</name>
-                        <value>
-                            <string>1234</string>
-                        </value>
-                    </member>
-                    
-                    <member>
-                        <name>vendor</name>
-                        <value>
-                            <string>CASHLESS</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>utilitycode</name>
-                        <value>
-                            <string>PESAMTANDAO</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>utilityref</name>
-                        <value>
-                            <string>$utilityref</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>cellid</name>
-                        <value>
-                            <string>$cellid</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>transid</name>
-                        <value>
-                            <string>$transid</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>amount</name>
-                        <value>
-                            <string>$amount</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>msisdn</name>
-                        <value>
-                            <string>$msisdn</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>sender</name>
-                        <value>
-                            <string>$sender</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>timestamp</name>
-                        <value>
-                            <string>$timestamp</string>
-                        </value>
-                    </member>
-                    <member>
-                        <name>checksum</name>
-                        <value>
-                            <string>$checksum</string>
-                        </value>
-                    </member>
-                </struct>
-            </value>
-        </param>
-    </params>
-</methodCall>";
+        $url  =  Config::get('api.API2_URL');
 
-            return $xml;
+        $payload  = [
+            "AgentCode"=>$Payload['agent_code'],
+            "SuperAgentTIN"=>$Payload['super_agent'],
+            "SlipPath"=>$Payload['slip_path'],
+            "Amount"=>$Payload['amount'],
+            "DepositedDate"=>date('Y-m-d h:i:s',strtotime($Payload['date'])),
+            "SourceWalletNo"=>$Payload['source_wallet'],
+            "DepositRefNo"=>$Payload['refNo'],
+            "UserLoginID"=>Auth::user()->id,
+            "RETRYTNX"=>$Payload['RETRYTNX']??0
+        ];
+
+        $result  = Http::post($url.'/agent/transactions/addBalance',$payload);
+
+        Log::info('API2-RESPONSE',['MESSAGE'=>$result->json()]);
+        return (json_decode($result));
+
+    }
+
+
+    public  static  function  sendAgentInfo($agent_code){
+
+        $url  =  Config::get('api.API2_URL');
+
+        $payload  =  Agent::query()->where(['agent_code'=>$agent_code])->first();
+
+        $wallet  = AgentWallet::query()->select('pin')->where(['agents_code'=>$agent_code])->first();
+        $body =
+            [
+                "AgentCode"=>$agent_code,
+                "SuperAgentTIN"=>"123456",
+                "AgentID"=>null,
+                "FirstName"=>$payload->first_name,
+                "MiddleName"=>$payload->middle_name,
+                "LastName"=>$payload->last_name,
+                "GenderID"=>$payload->gender_id,
+                "DateOfBirth"=>'1970-01-01',
+                "DistrictID"=>$payload->district_id,
+                "PhoneNumber"=>$payload->phone_number,
+                "Location"=>$payload->location,
+                "StatusID"=>$payload->status_id,
+                "Password"=>'1111222',
+                "RegisteredDate"=>date('Y-m-d h:i:s',strtotime($payload->created_at)),
+                "CanSellPaperTicket"=>$payload->can_sell_paper_ticket,
+                "RegisteredByID"=>$payload->created_by,
+                "WalletStatusID"=>1,
+                "PIN"=>$wallet->pin,
+                "Keyword"=>"INSERT"
+            ];
+        $result  = Http::post($url.'/agent/save-agent',$body);
+        Log::info('API2-RESPONSE',['MESSAGE'=>$result->json()]);
+        $result =  json_decode($result);
+
+        $payload->api2_status = $result->resultCode;
+        $payload->api2_message = $result->message;
+        $payload->sent_to_api2  =1;
+        $payload->save();
+
+        return $result;
     }
 }

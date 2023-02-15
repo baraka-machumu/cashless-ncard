@@ -112,6 +112,25 @@
     <div class="page-wrapper">
 
         @yield('content')
+        <div id="idle-timeout-dialog" data-backdrop="static" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Your session is expiring soon</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            <i class="fa fa-warning font-red" aria-hidden="true"></i> You session will be locked in
+                            <span id="idle-timeout-counter"></span> seconds.</p>
+                        <p> Do you want to continue your session? </p>
+                    </div>
+                    <div class="modal-footer text-center">
+                        <button id="idle-timeout-dialog-keepalive" type="button" class="btn btn-success" data-dismiss="modal">Yes, Keep Working</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>
@@ -158,7 +177,8 @@
 <script src="{{asset('public/assets/js/consumer-live-data.js')}}"></script>
 
 <script src="{{asset('public/assets/js/datatables.min.js')}}"></script>
-
+<script src="{{ url('public/assets/js/jquery.idletimeout.js') }}"></script>
+<script src="{{ url('public/assets/js/jquery.idletimer.js') }}"></script>
 
 <script type="text/javascript">
 
@@ -197,8 +217,38 @@ $("#viewParams").trigger("change");
 
     $('#users-table').dataTable();
 
+
+
 </script>
 
+<script>
+    var UIIdleTimeout = function() {
+        return {
+            init: function() {
+                $("body").append("");
+                $.idleTimeout("#idle-timeout-dialog", "#idle-timeout-dialog .modal-content button:last", {
+                    idleAfter: 900,
+                    timeout: 600,
+                    onTimeout: function() {
+                        window.location = '{{ url('lock') }}';
+                    },
+                    onIdle: function() {
+                        $("#idle-timeout-dialog").modal("show");
+                        $("#idle-timeout-dialog-keepalive").on("click", function() {
+                            $("#idle-timeout-dialog").modal("hide")
+                        })
+                    },
+                    onCountdown: function(e) {
+                        $("#idle-timeout-counter").html(e)
+                    }
+                })
+            }
+        }
+    }();
+    jQuery(document).ready(function() {
+        UIIdleTimeout.init()
+    });
+</script>
 
 @yield('js')
 </body>

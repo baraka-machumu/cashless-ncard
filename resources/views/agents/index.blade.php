@@ -101,7 +101,7 @@
                                 @endif
                                 <a href="{{url('agents/roles',$agent->agent_code)}}" id="{{ $agent->agent_code}}"   class="btn btn-warning"><i class="fa fa-bars"></i></a>
 
-                                <a href="{{url('agents',$agent->agent_code)}}" class="btn btn-info"><i class="fa fa-users"></i></a>
+                                <a href="{{url('agents',$agent->agent_code)}}" class="btn btn-info"><i class="fa fa-eye"></i></a>
 
                             </td>
 

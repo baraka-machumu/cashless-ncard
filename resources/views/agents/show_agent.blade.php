@@ -81,7 +81,7 @@
                         <td>{{$agent->dob}}</td>
                     </tr>
 
-                
+
 
                     </tbody>
                 </table>
@@ -188,9 +188,7 @@
 
 
 
-
-
-                    <a  href="{{url()->previous()}}" style="margin-top: 0px;" class="btn btn-info" name="edit-merchant">Back</a>
+                    <a  href="{{url()->previous()}}" style="margin-top: 0px;" class="btn btn-info" >Back</a>
 
                     @can('agent-update')
 
@@ -238,6 +236,52 @@
 
 
             </div>
+
+
+{{--            <div class="col-md-12">--}}
+
+{{--                <p style="color: red;">FAILED TRANSACTIONS </p>--}}
+{{--                <hr>--}}
+
+{{--                <table class="table table-bordered">--}}
+
+{{--                    <thead>--}}
+{{--                    <tr>--}}
+{{--                        <th>No</th>--}}
+{{--                        <th>Agent Code</th>--}}
+{{--                        <th>ref_no</th>--}}
+{{--                        <th>amount</th>--}}
+{{--                        <th>created_at</th>--}}
+{{--                        <th>Created by</th>--}}
+{{--                        <th>response_code</th>--}}
+{{--                        <th>response_ref_number</th>--}}
+{{--                        <th>Message</th>--}}
+{{--                        <th>Action</th>--}}
+{{--                    </tr>--}}
+{{--                    </thead>--}}
+
+{{--                    <tbody>--}}
+{{--                    @foreach($failed_log_tx as $index=>$row)--}}
+{{--                        <tr>--}}
+{{--                            <td>{{$index+1}}</td>--}}
+{{--                            <td>{{$row->agent_code}}</td>--}}
+{{--                            <td>{{$row->ref_no}}</td>--}}
+{{--                            <td>{{$row->amount}}</td>--}}
+{{--                            <td>{{$row->created_at}}</td>--}}
+{{--                            <td>{{$row->fullname}}</td>--}}
+{{--                            <td>{{$row->response_code}}</td>--}}
+{{--                            <td>{{$row->response_ref_number}}</td>--}}
+{{--                            <td>{{$row->message}}</td>--}}
+{{--                            <td>--}}
+{{--                                <a href="{{url('agent-request-logs',[$row->id])}}" class="btn btn-info">--}}
+{{--                                    View--}}
+{{--                                </a>--}}
+{{--                            </td>--}}
+{{--                        </tr>--}}
+{{--                    @endforeach--}}
+{{--                    </tbody>--}}
+{{--                </table>--}}
+{{--            </div>--}}
 
         </div>
 
@@ -293,6 +337,7 @@
 
 
                                             </div>
+
                                         </div>
                                         <div class="col-md-6">
 
@@ -343,7 +388,6 @@
 
     {{--disable pos--}}
 
-    <!-- Modal -->
     <div class="modal fade bd-example-modal-lg" id="show-posagent-disable-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 
         <form method="post" action="{{url('agents/account/disable-pos')}}">
@@ -396,7 +440,6 @@
     </div>
 
 
-    <!-- Modal -->
     <div class="modal fade bd-example-modal-lg" id="show-posagent-enable-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 
         <form method="post" action="{{url('agents/account/enable-pos')}}">

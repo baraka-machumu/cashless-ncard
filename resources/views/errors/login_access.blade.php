@@ -11,6 +11,7 @@
             <div class="alert alert-danger" role="alert">
 
                 <p>You are not authorised to this activity</p>
+
             </div>
 
         </div>

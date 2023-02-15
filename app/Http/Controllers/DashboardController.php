@@ -101,7 +101,7 @@ class DashboardController extends Controller
         $permissions  =  DB::table('permissions')->count();
         $service  =  DB::table('services')->count();
         $consumers  =  DB::table('consumers')->count();
-        $active_cards  =  DB::table('cards')->where('status_id','=',1)->count();
+        $active_cards  =  DB::table('consumer_cards')->count();
         $permissions  =  DB::table('permissions')->count();
         $permissions  =  DB::table('permissions')->count();
 
