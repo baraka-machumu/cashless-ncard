@@ -86,6 +86,15 @@
 
                     </form>
 
+                    <div class="col-md-12">
+                        <form method="get" action="{{url('Fund/update-payment-status')}}">
+
+                        {{csrf_field()}}
+                            <input type="hidden" value="{{encrypt($tx->reference)}}" name="ref">
+                            <button type="submit" class="btn btn-primary">Update Payment status to successful</button>
+
+                        </form>
+                    </div>
                 </div>
 
 

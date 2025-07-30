@@ -21,5 +21,10 @@ return [
     'LIVE_JASPER_SERVER'=>env('LIVE_JASPER_SERVER'),
     'TEST_JASPER_SERVER'=>env('TEST_JASPER_SERVER'),
     'API2_URL'=>env('API2_URL'),
+    'HOST'=>env('HOST'),
+    'X_API_KEY' =>env('X_API_KEY'),
+    'X_USER'=>env('X_USER'),
+    'API_DATA_SYNC_TPESA_URL'=>env('API_DATA_SYNC_TPESA_URL')
+
 
 ];

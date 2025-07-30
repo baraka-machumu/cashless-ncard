@@ -4,12 +4,14 @@ namespace App\Imports;
 
 use App\TransactionVerify;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class TnxVerify implements ToModel,WithHeadingRow
 {
+
 
     /**
      * @param array $row
@@ -24,9 +26,16 @@ class TnxVerify implements ToModel,WithHeadingRow
             'channel'     => @$row["channel"],
             'ref_number'    => @$row["reference"],
             'phone_number'    => @$row["phone_number"],
-            'amount'=>@$row["amount"],
+            'amount'=>@$this->clean($row["amount"]),
             'channel_ref_no'=> @preg_replace('/\s+/', '', $row["transaction_id"]),
             'tnx_date'=>date('Y-m-d',strtotime(@$row["date"]))
         ]);
+    }
+
+
+    function clean($string) {
+        $string = str_replace(' ', '', $string); // Replaces all spaces with hyphens.
+
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\access;
 
 use App\Gender;
+use App\Helper\AuditLogs;
 use App\Helper\RandomGenerator;
 use App\Helper\SmsHelper;
 use App\Http\Controllers\DashboardController;
@@ -29,7 +30,8 @@ class UserController extends Controller
      */
     public function index()
     {
-
+        $desc  = 'View user List';
+        AuditLogs::saveLogs($desc,null,'USER','VIEW');
         if (!Gate::allows('manage-user')) {
 
             return view('errors.login_access');
@@ -92,15 +94,11 @@ class UserController extends Controller
 
         try{
         if (!is_numeric($phone_number)){
-
             Session::flash('alert-danger', 'Phone Number Is Invalid ');
-
             return back()->withInput();
-
         }
 
         $api_token =  Str::random(60);
-
         $password =  User::generatePassword();
 
         DB::beginTransaction();
@@ -114,6 +112,8 @@ class UserController extends Controller
         $user->api_token =  $api_token;
         $user->status   =  1; // default status is 1
         $user->created_by  = Auth::user()->id;
+        $user->is_approved  =  0;
+
 
         $success = $user->save();
 
@@ -124,15 +124,12 @@ class UserController extends Controller
             $rolePermission->save();
         }
 
-
             $msisdn  = RandomGenerator::addPrefixExtra($phone_number);
-
             $message = 'Password yako ya kuingia kwenye mfumo ni '.$password;
-
+            $desc  = 'Creating new user for portal ('.$first_name.' '.$last_name.')';
+            AuditLogs::saveLogs($desc,$user->id,'USER','SAVE');
             DB::commit();
-
             SmsHelper::sendSms($message,$msisdn);
-
             Session::flash('alert-success', $first_name.' '.$last_name.'  Successful created');
 
         } catch(\Exception $ex) {
@@ -161,9 +158,11 @@ class UserController extends Controller
             return view('errors.login_access');
 
         }
+        $desc  = 'View user profile';
+        DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$id,'USER','VIEW'));
 
         $user  =  DB::table('users as u')
-            ->select('first_name','last_name','middle_name','u.email','u.phone_number','u.status','s.name as sname')
+            ->select('first_name','last_name','middle_name','u.email','u.phone_number','u.status','s.name as sname','u.id as user_id')
             ->join('status as s','s.id','=','u.status')
             ->where(['u.id'=>$id])
             ->first();
@@ -260,6 +259,8 @@ class UserController extends Controller
                 $rolePermission->user_id =$id;
                 $rolePermission->save();
             }
+            $desc  = 'Update user for portal';
+            DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$user->id,'USER','SAVE'));
 
             DB::commit();
             Session::flash('alert-success','Update successful');
@@ -313,14 +314,16 @@ class UserController extends Controller
         }
         $id =  $request->userId;
 
-        $success = DB::table('users')->where(['id'=>$id])->update(['status'=>0]);
+        $success = DB::table('users')->where(['id'=>$id])->update(['status'=>0,'updated_at'=>date('Y-m-d H:i:s')]);
+        $desc  = 'Disable user for portal';
+        DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$id,'USER','SAVE'));
 
         if ($success){
             Session::flash('alert-success','User status changed successful');
 
         }
         else {
-            Session::flash('alert-success','Failed to change user status');
+            Session::flash('alert-danger','Failed to change user status');
 
         }
 

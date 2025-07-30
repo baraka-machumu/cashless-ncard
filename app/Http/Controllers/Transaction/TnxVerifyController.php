@@ -41,7 +41,7 @@ class TnxVerifyController extends Controller
             return redirect('tnx-recon/verify');
         }
 
-        DB::table('tnx_verify')->truncate();
+        DB::table('tnx_verify')->delete();
         DB::beginTransaction();
 
         try {

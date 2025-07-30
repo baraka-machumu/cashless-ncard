@@ -45,6 +45,14 @@
                 <a href="{{url('access/users')}}" class="btn btn-info">Back</a>
                 <a href="#" class="btn btn-danger" id="user-reset-password"  data-toggle="modal" data-target="#user-reset-password-modal">Reset</a>
 
+                @if($user->status==1)
+                    <a href="#" class="btn btn-danger user-status" id="{{$user->user_id}}" data-toggle="modal" data-target="#user-status-modal">
+                        <i class="fa fa-trash"></i></a>
+                @else
+                    <a href="#" class="btn btn-danger user-status-activate" id="{{$user->user_id}}" data-toggle="modal" data-target="#user-status-activate-modal">
+                        <i class="fa fa-check-circle"></i>
+                    </a>
+                @endif
             </div>
 
 
@@ -72,6 +80,11 @@
     </div>
 
     @include('users.reset')
+
+
+    @include('users.activate')
+
+    @include('users.disabled')
 
 @stop
 

@@ -41,7 +41,7 @@
 
                     <div class="row">
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
 
                             <label>Wallet ID</label>
                             <input type="text" name="walletId" class="form-control">
@@ -54,7 +54,12 @@
                             <input type="text" name="phone_number" class="form-control">
 
                         </div>
+                        <div class="col-md-3">
+                            <label>Card number</label>
 
+                            <input type="text" name="CardNumber" class="form-control">
+
+                        </div>
                         <div class="col-md-3">
                             <label>Fullname</label>
 

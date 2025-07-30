@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Session;
 
 class ConsumerSearchController extends Controller
 {
@@ -34,11 +35,28 @@ class ConsumerSearchController extends Controller
         }
 
         if (!empty($request->Fullname)){
-
             $column  = 'first_name';
-
             $search =  $request->Fullname;
         }
+        if (!empty($request->CardNumber)){
+
+            $card  =$request->CardNumber;
+
+            if (!is_numeric($card)){
+
+                $card = DB::table('cards')->select('card_uid')->where('virtual_vendor_card_number','like',$card)
+                    ->first();
+                if (!$card){
+                    Session::flash('alert-danger','No data found');
+                    return  back()->withInput();
+                }
+                $column = 'card_uid';
+                $search = $card->card_uid;
+
+            }
+        }
+
+
 
         $consumers= DB::table('consumer_wallets')
             ->select('consumer_cards.card_number','consumers.status_id','consumer_wallets.wallet_id','consumers.agent_code','consumers.phone_number','consumers.first_name','consumers.last_name')

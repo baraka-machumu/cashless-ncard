@@ -29,11 +29,8 @@ class PermissionList
     public  const  RECONCILE  = 2000;
     public  const  LOW_ACCOUNT = 3000;
     public  const  MANAGE_CONSUMER_CREDO = 4000;
-
+    public  const  DEBIT_ADJUSTMENT=610;
+    public  const  APPROVE_DEBIT_ADJUSTMENT=620;
     public  const  CUSTOMER_REFUND  = 5000;
 
-    public  static function  canManagement(){
-
-//        if ()
-    }
 }

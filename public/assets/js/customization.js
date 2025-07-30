@@ -752,8 +752,7 @@ function  viewDetailsForMerchant() {
 
  function editAgentDetails(){
 
-$('.edit-agent-modal').click(function (event) {
-
+ $(document).on('click', '.edit-agent-modal', function(event) {
     let id  =  $(this).attr('id');
 
     console.log(id);

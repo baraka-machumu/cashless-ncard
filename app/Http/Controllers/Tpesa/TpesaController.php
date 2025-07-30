@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Tpesa;
 use App\Http\Controllers\Agent\TpesaNcardFund;
 use App\Http\Controllers\Controller;
 use App\NcardDisbursementAccount;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Monolog\Logger;
@@ -14,14 +15,28 @@ use Monolog\Logger;
 class TpesaController extends Controller
 {
 
-    public  function balance(){
+    public  function  rePushCommutorRequest(Request  $request){
+        $InstTIN  = $request->InstTIN;
+        $Amount  = $request->Amount;
+        $DepositedDate = $request->DepositedDate;
+        $SourceWalletNo = $request->SourceWalletNo;
+        $DepositRefNo= $request->DepositRefNo;
 
-        $account  =  NcardDisbursementAccount::query()->get();
+        $res  = Http::post('http://ip:3007/mvne/v1/energies/inst_topup',[
+            'InstTIN'=>$InstTIN,
+            'Amount'=>$Amount,
+            'DepositedDate'=>$DepositedDate,
+            'SourceWalletNo'=>$SourceWalletNo,
+            'DepositRefNo'=>$DepositRefNo,
+        ]);
 
-        return view('tpesa.index',compact('account'));
-
+        $res   = json_decode($res);
+        Log::info('RESPOSEN',['MESSAGE'=>$res]);
     }
-
+    public  function balance(){
+        $account  =  NcardDisbursementAccount::query()->get();
+        return view('tpesa.index',compact('account'));
+    }
 
     public  function  checkBalance($account){
 

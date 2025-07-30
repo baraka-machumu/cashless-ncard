@@ -95,9 +95,6 @@
 
     </div>
 
-    @include('users.activate')
-
-    @include('users.disabled')
 
 @stop
 
@@ -109,7 +106,6 @@
 
         $(function () {
 
-            alert(33)
         })
     </script>
 

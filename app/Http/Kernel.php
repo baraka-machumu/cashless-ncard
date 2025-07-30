@@ -3,8 +3,10 @@
 namespace App\Http;
 
 use App\Http\Middleware\AgentManage;
+use App\Http\Middleware\CachePolicy;
 use App\Http\Middleware\CheckUserActive;
 use App\Http\Middleware\FirstLoginOrChangePwd;
+use App\Http\Middleware\FrameGuard;
 use App\Http\Middleware\ManageMerchants;
 use App\Http\Middleware\ManageTransafer;
 use App\Http\Middleware\ManageWallet;
@@ -28,6 +30,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
+        \App\Http\Middleware\XFrameHeadersMiddleware::class,
 
     ];
 
@@ -46,7 +49,9 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\Localization::class,
-           \Illuminate\Session\Middleware\StartSession::class
+           \Illuminate\Session\Middleware\StartSession::class,
+            \App\Http\Middleware\XFrameHeadersMiddleware::class,
+
         ],
 
         'api' => [
@@ -81,9 +86,9 @@ class Kernel extends HttpKernel
         'firstLogin'=>FirstLoginOrChangePwd::class,
         'session-timeout-check' => \App\Http\Middleware\CheckSessionTimeout::class,
         'token'=>TokenVerify::class,
-        'custom-th'=>ThrottleRequestsMiddleware::class
-
-
+        'custom-th'=>ThrottleRequestsMiddleware::class,
+        'frame-guard' => FrameGuard::class,
+        'XssSanitizer' => \App\Http\Middleware\XssSanitization::class,
     ];
 
     /**

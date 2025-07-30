@@ -1,6 +1,4 @@
-
 @extends('layouts.master')
-
 
 @section('content')
     @can('view-report')
@@ -57,7 +55,8 @@
 
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <button class="btn btn-info" type="submit" name="_xt-get">Search</button>
+                                            <button class="btn btn-info" type="submit" name="export_search" value="_xt-get">Search</button>
+                                            <button class="btn btn-info" type="submit" name="export_search" value="export">Export</button>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -80,7 +79,9 @@
                                     <th>Current Balance</th>
                                     <th>Created</th>
                                     <th>Created by</th>
-                                    <th>Reference</th>
+                                    <th>Source Reference</th>
+                                    <th>Ref</th>
+                                    <th>Terminal</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
@@ -89,13 +90,15 @@
                                     <tr>
                                         <td>{{$row->agent_code??'N/A'}}</td>
                                         <td>{{number_format($row->amount,0,'.',',')}}</td>
-                                        <td>{{number_format($row->previous_balance??0,0,'.',',')}}</td>
-                                        <td>{{number_format($row->current_balance??0,0,'.',',')}}</td>
+                                        <td>{{number_format($row->consumer_previous_balance??0,0,'.',',')}}</td>
+                                        <td>{{number_format($row->consumer_current_balance??0,0,'.',',')}}</td>
                                         <td>{{$row->created_at??''}}</td>
                                         <td>{{$row->full_name??''}}</td>
-                                        <td>{{$row->reference??''}}</td>
+                                        <td>{{$row->source_ref??''}}</td>
+                                        <td>{{$row->ncard_reference}}</td>
+                                        <td>{{$row->terminal_device}}</td>
                                         <td>
-                                            <a href="{{url('view-Transactions/agent-tnx-print',[encrypt($row->id??'')])}}" class="btn btn-info">Print</a>
+{{--                                            <a href="{{url('view-Transactions/consumer',[encrypt($row->id),$tnx_type])}}" class="btn btn-info">view</a>--}}
                                         </td>
                                     </tr>
                                 @endforeach

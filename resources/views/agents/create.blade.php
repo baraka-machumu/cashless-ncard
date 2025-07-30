@@ -27,7 +27,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="mname">First Name</label>
-                                        <input type="text" class="form-control" pattern="[A-Za-z]*"  required id="first_name"  value="{{old('first_name')}}" name="first_name" placeholder="First Name">
+                                        <input type="text" class="form-control"   required id="first_name"  value="{{old('first_name')}}" name="first_name" placeholder="First Name">
 
                                     </div>
                                 </div>
@@ -35,7 +35,7 @@
                                     <div class="form-group">
 
                                         <label for="middle_name">Middle Name</label>
-                                        <input type="text" class="form-control" pattern="[A-Za-z]*"  value="{{old('middle_name')}}"  name="middle_name" id="middle_name" placeholder="Middle Name">
+                                        <input type="text" class="form-control"  value="{{old('middle_name')}}"  name="middle_name" id="middle_name" placeholder="Middle Name">
 
                                     </div>
                                 </div>
@@ -43,7 +43,7 @@
                                     <div class="form-group">
 
                                         <label for="last_name">Last Name</label>
-                                        <input type="text" class="form-control" pattern="[A-Za-z]*"  required value="{{old('last_name')}}"  name="last_name" id="last_name" placeholder="Last Name">
+                                        <input type="text" class="form-control"  required value="{{old('last_name')}}"  name="last_name" id="last_name" placeholder="Last Name">
 
                                     </div>
                                 </div>
@@ -64,14 +64,6 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-4">
-                                    <div class="form-group">
-
-                                        <label for="email">Pin</label>
-                                        <input type="text" class="form-control"  required  value="{{old('pin')}}" id="email" name="pin" placeholder="Pin">
-
-                                    </div>
-                                </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
 
@@ -133,21 +125,21 @@
 
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
+{{--                                <div class="col-md-6">--}}
+{{--                                    <div class="form-group">--}}
 
-                                        <label for="phone_number">Top Up Source</label>
-                                        <select type="text" class="form-control"  name="top_up_source" id="top_up_source" >
+{{--                                        <label for="phone_number">Top Up Source</label>--}}
+{{--                                        <select type="text" class="form-control"  name="top_up_source" id="top_up_source" >--}}
 
-                                            <option value="" selected disabled>--select source--</option>
-                                            @foreach($top_source as $row)
+{{--                                            <option value="" selected disabled>--select source--</option>--}}
+{{--                                            @foreach($top_source as $row)--}}
 
-                                                <option value="{{$row->code}}">{{$row->name}}</option>
-                                            @endforeach
-                                        </select>
+{{--                                                <option value="{{$row->code}}">{{$row->name}}</option>--}}
+{{--                                            @endforeach--}}
+{{--                                        </select>--}}
 
-                                    </div>
-                                </div>
+{{--                                    </div>--}}
+{{--                                </div>--}}
 
                                 <div class="col-md-12 form-group text-right">
                                     <hr/>

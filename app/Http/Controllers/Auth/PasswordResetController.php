@@ -10,6 +10,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -64,6 +65,10 @@ class PasswordResetController extends Controller
 
         $success  =  $user->save();
         if ($success){
+
+            $desc  = 'User changes password';
+            DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,Auth::user()->id,'USER','UPDATE'));
+
             Session::flash('alert-success', 'Successful changed.');
             return  redirect('/');
         }

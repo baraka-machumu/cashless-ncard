@@ -20,6 +20,39 @@ class RandomGenerator
 
     }
 
+
+    public  static function generatePassword()
+    {
+        $alphabet = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ123456789';
+        $pass = [];
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < 10; $i++) {
+            $n = random_int(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        array_splice( $pass, random_int(1,count($pass)-1), 0, (array) self::addSpecial()[0]);
+
+        $pas = implode(',', $pass);
+
+        return str_replace(',','',$pas);
+    }
+
+    public  static function addSpecial()
+    {
+
+        $alphabet = '!#';
+        $pass = [];
+        $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+        for ($i = 0; $i < 3; $i++) {
+            $n = random_int(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+
+        return implode($pass);
+
+    }
+
+
     public static function addPrefixExtra($phone)
     {
 

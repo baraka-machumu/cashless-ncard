@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\ExportDailyBalance;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,6 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        ExportDailyBalance::class
     ];
 
     /**
@@ -25,7 +27,10 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('push-temesa')->everyMinute();
+        $schedule->command('daily-balance')->dailyAt('00:00');
+        $schedule->command('daily-agent-balance')->dailyAt('00:00');
+
+       // $schedule->command('push-temesa')->everyMinute();
 
     }
 

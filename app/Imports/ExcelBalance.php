@@ -22,23 +22,14 @@ class ExcelBalance implements  ToCollection,WithHeadingRow,WithValidation
 
         foreach ($rows as $row)
         {
-
-//            dd(trim($row['matumizicarduid'],' '));
-
             $card  = ConsumerCard::query()->where(['card_uid'=>trim($row['matumizicarduid'],' ')])->first();
-
-//            dd($card);
-
             if ($card){
-
                 mno_consumer_refund::create([
-
                     'amount' => trim($row['refund'],' '),
                     'card_uid' => trim($row['matumizicarduid'],' '),
                     'wallet_id' => $card->consumers_wallet_id,
                     'phone_number' => trim($row['matumiziphone'],' '),
                     'created_by' => Auth::user()->id,
-
                 ]);
 
                 $wallet  = ConsumerWallet::query()->lockForUpdate()->where(['wallet_id'=>$card->consumers_wallet_id])->first();

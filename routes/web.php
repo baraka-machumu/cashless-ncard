@@ -1,27 +1,31 @@
 <?php
 
+use App\Http\Controllers\ApplicationRequest\ApplicationController;
+use App\Http\Controllers\ApplicationRequest\RejectApplicationController;
+use App\Http\Controllers\Limit\LimitController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/','Auth\LoginController@showLoginForm')->name('login');
-Route::post('/auth/login','Auth\LoginController@loginWeb');
+Route::get('/','Auth\LoginController@showLoginForm')->name('login')->middleware('frame-guard');
+Route::post('/auth/login','Auth\LoginController@loginWeb')->name('login-request');
 
 Route::get('error-access', function (){
+
     return view('errors.login_access');
 });
 
 Route::get('/auth/change-password','Auth\PasswordResetController@changePassword')
-    ->middleware(['auth','user-is-active']);
+    ->middleware(['auth','user-is-active','XssSanitizer']);
 Route::post('/auth/change-password','Auth\PasswordResetController@saveNewPassword')
-    ->middleware(['auth','user-is-active']);
+    ->middleware(['auth','user-is-active','XssSanitizer']);
 
-Route::group(['middleware'=>['auth','user-is-active','firstLogin']],function () {
+Route::group(['middleware'=>['auth','user-is-active','firstLogin','XssSanitizer']],function () {
     Route::get('/auth/otp','Auth\OTPController@otpForm');
     Route::post('/auth/verify-otp','Auth\OTPController@verify');
     Route::get('/auth/otp/resend','Auth\OTPController@resentToken');
     Route::get('error-access/429-ex/{data}','Access\ErrorController@access429');
 });
-Route::group(['middleware'=>['auth','user-is-active','firstLogin','token']],function (){
+Route::group(['middleware'=>['auth','user-is-active','firstLogin','token','XssSanitizer']],function (){
 
     Route::get('locked', 'Auth\LoginController@locked')->middleware('auth');
     Route::get('lock','Auth\LoginController@lock');
@@ -33,7 +37,7 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','token']],func
 });
 
 Route::get('/dashboard','DashboardController@adminDashboard')->name('dashboard');
-Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeout-check','token']], function (){
+Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeout-check','token','XssSanitizer']], function (){
 
 
     Route::get('/dashboard','DashboardController@adminDashboard')->name('dashboard');
@@ -60,8 +64,8 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeo
     Route::post('merchants/account/enable','Merchant\MerchantsController@enableAccount')->name('m-enable-acount');
     Route::post('merchants/account/disable','Merchant\MerchantsController@disableAccount')->name('m-enable-acount');
 
-    Route::post('merchants/update','Merchant\MerchantsController@updateMerchantAgentUsers');
-    Route::get('merchants/edit-user/{tin}','Merchant\MerchantsController@editUserMerchant');
+    Route::post('merchants/update-user/{id}','Merchant\MerchantsController@updateMerchantAgentUsers');
+    Route::get('merchants/edit-user/{id}','Merchant\MerchantsController@editUserMerchant');
 
     Route::get('merchants/config/{tin}','Merchant\AppConfigController@index');
     Route::post('merchants/config/{tin}','Merchant\AppConfigController@saveJsonColumn');
@@ -218,6 +222,7 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeo
         Route::get('payment-history/{consumer_wallet_id}','Transaction\ConsumerTransactionController@paymentsHistory')->name('payment.history');
         Route::get('deposit-history/{consumer_wallet_id}','Transaction\ConsumerTransactionController@depositsHistory')->name('deposit.history');
 
+        Route::get('/get-default-tnx','Transaction\ConsumerTransactionController@getTnxApi');
 
     });
 
@@ -282,6 +287,7 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeo
         Route::get('info','Wallet\WalletController@ncardWalletInfo');
         Route::post('disable-consumer-wallet','Wallet\ConsumerWalletController@disableAccount');
         Route::post('disabled-consumer-card','Wallet\ConsumerWalletController@disableCard');
+        Route::get('destroy-account','Wallet\NcardDestroyController@index');
 
     });
 
@@ -375,10 +381,10 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeo
         Route::get('/customer-search','Support\CustomerSupportController@getResult');
     });
 
-
     Route::group(['prefix'=>'View-Transactions'], function (){
         Route::get('/consumer','Transaction\ConsumerTransactionController@index');
         Route::post('/consumer-get-trx','Transaction\ConsumerTransactionController@getTnx');
+        Route::get('/consumer/detail/{id}/{tnx_type}','Transaction\ConsumerTransactionController@view');
 
 //        Route::post('/consumer-get-trx','Transaction\TicketEngineTrnxController@getTrnx');
         Route::get('/agent','Transaction\AgentTnxController@index');
@@ -386,13 +392,21 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeo
         Route::get('/agent-tnx-print','Transaction\AgentTnxController@getTnx');
 
     });
-
+//
     Route::group(['prefix'=>'Fund','middleware'=>'transfer-m'], function (){
         Route::get('transfer-to-merchant','Tpesa\CashOutController@index');
         Route::get('view-transfer-status/{reference}/{tin}','Tpesa\CashOutController@view');
         Route::post('transfer-to-merchant','Tpesa\CashOutController@pay');
         Route::post('Resend-fund','Tpesa\CashOutController@repay');
+        Route::post('update-payment-status','Tpesa\CashOutController@updatePaymentStatus');
     });
+
+    Route::group(['prefix'=>'adjustment'], function (){
+        Route::get('/','Adjustment\AdjustmentController@index');
+        Route::post('/save','Adjustment\AdjustmentController@save');
+        Route::post('/approve','Adjustment\AdjustmentController@approve');
+    });
+
 
     /**
      *TPESA FUND MV
@@ -466,22 +480,12 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeo
     });
 
     Route::get('active-event', function (){
-
         $url = 'http://10.60.82.50:8095/active-event';
         $res  =  Http::get($url);
         return $res->json();
 
     });
     Route::get('support/customer-ticket-by-phone','TicketEngine\TicketEngineController@getTicketByPhoneNumber');
-    Route::get('regii', function (){
-        return view('home');
-    });
-    Route::get('refund/top', 'Wallet\ConsumerWalletController@getRefundView');
-    Route::post('refund/check', 'Wallet\ConsumerWalletController@checkTx');
-
-    Route::post('top', 'Wallet\ConsumerWalletController@verifyTopupRefund');
-    Route::post('refund/top-user','Wallet\ConsumerWalletController@saveTopup');
-    Route::get('reg','Wallet\ConsumerWalletController@saveCustomer');
 
     /**
      * TNX VERIFICATION
@@ -493,10 +497,51 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeo
     Route::post('tnx-recon/check-status','Transaction\TnxVerifyController@checkStatus');
     Route::post('tnx-recon/download','Transaction\TnxVerifyController@download');
 
+    Route::get('/reconciliation','Recon\ReconciliationController@getTodayRecon');
+
+    Route::post('/reconciliation/check','Recon\ReconciliationController@check');
+    Route::get('dashboard-data','DashboardController@getTotalForDashboard');
+    Route::get('cards-info','Card\CardController@howCardUidForm');
+    Route::post('cards-info/save','Card\CardController@storeCardNumberTemp');
+    Route::get('cards-info/download','Card\CardController@downloadTemplate');
+    Route::post('cards-info/export','Card\CardController@exportData');
+
+//    Route::post('limits','Limit\LimitController@index');
+//    Route::post('limits/save','Limit\LimitController@store');
+//    Route::post('limits/update','Limit\LimitController@update');
+
+    /**
+     * manage limits
+     */
+    Route::group(['prefix' => 'limits-class'], function () {
+        Route::get('/', [LimitController::class, 'index']);
+        Route::get('/create', [LimitController::class, 'create']);
+        Route::post('store', [LimitController::class, 'store']);
+        Route::get('/{id}', [LimitController::class, 'view']);
+        Route::post('/store-rule-engine', [LimitController::class, 'storeRuleEngine']);
+        Route::get('/{id}/edit', [LimitController::class, 'edit'])
+            ->name('limits-class-edit');
+        Route::post('/update/{id}', [LimitController::class, 'updateRuleEngine']);
+
+    });
+    Route::group(['prefix' => 'limits'], function () {
+        Route::get('/{id}/edit', [LimitController::class, 'editLimitItem'])->name('edit-limit');
+        Route::post('/update/{id}/{class_id}', [LimitController::class, 'updateLimitItem']);
+    });
+
+    Route::group(['prefix' => 'applications'], function () {
+        Route::get('/{type}', [ApplicationController::class,'index']);
+        Route::get('/view/{id}/{app_type}', [ApplicationController::class,'view']);
+        Route::post('/approve/{id}', [ApplicationController::class,'approve']);
+
+        Route::post('/reject/{id}', [RejectApplicationController::class,'reject']);
+
+        Route::post('/approve-update/{id}', [ApplicationController::class,'approveUPdate']);
+
+        Route::post('/reject-updated-item/{id}', [ApplicationController::class,'rejectUpdatedApp']);
+
+    });
 });
-//END AUTH GROUP
-
-
 
 
 

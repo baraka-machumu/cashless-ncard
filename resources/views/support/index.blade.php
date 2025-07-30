@@ -236,33 +236,6 @@
 
                     <div class="row">
 
-                        <div class="col-6">
-
-                            <form method="get">
-                                <div class="row">
-
-                                    <div class="col-4" >
-                                        <div class="form-group">
-
-                                            <label>Ticket number</label>
-
-                                            <input type="text" value="{{old('phoneNo')}}" readonly class="form-control" name="phoneNo">
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-4" style=" margin-top: 30px;">
-                                        <div class="form-group">
-                                            <button class="btn btn-primary" type="button"> submit to technical
-                                            </button>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            </form>
-
-                        </div>
 
                         @if($walletDetails)
                             <div class="col-6">
@@ -273,13 +246,10 @@
 
                                         <div class="col-md-4 form-group">
                                             <input  type="text"  class="form-control"  value="{{$walletDetails->card_number}}" name="consumer_card_number" readonly>
-
                                         </div>
                                         <div class="col-md-5 form-group">
 
                                             <select id="eventCode" name="eventCode" class="form-control eventCode">
-
-
                                             </select>
 
                                         </div>
@@ -336,6 +306,8 @@
                                 </tr>
                                 <tr>
                                     <td>wallet_id</td><td colspan="2">{{$walletDetails->wallet_id}}</td>
+                                    <input type="hidden" id="wallet_id"   value="{{$walletDetails->wallet_id}}">
+
                                 </tr>
                                 <tr>
                                     <td><b>balance</b></td><td colspan="2"><b style="font-size: 17px;">{{$walletDetails->balance}}</b></td>
@@ -396,7 +368,7 @@
                                 <form method="post" action="{{url('consumers/pin-reset')}}">
                                     {{csrf_field()}}
                                     <div class="col-md-12">
-                                        <input type="hidden"  name="wallet_id" value="{{$walletDetails->wallet_id}}">
+                                        <input type="hidden"   name="wallet_id" value="{{$walletDetails->wallet_id}}">
                                         <div class="form-group">
 
                                             <input type="text"  readonly class="form-control" placeholder="Enter pin" name="pin" >
@@ -413,7 +385,7 @@
                                         <input type="hidden"  name="wallet_id" value="{{$walletDetails->wallet_id}}">
                                         <div class="form-group">
 
-                                            <input type="text"  class="form-control" placeholder="Enter password" name="password" >
+{{--                                           / <input type="text"  class="form-control" placeholder="Enter password" name="password" >--}}
                                         </div>
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-info">Reset password</button>
@@ -427,7 +399,7 @@
                         </div>
                         <div class="col-md-12 result-window" >
 
-                            <p>   Latest five deposits</p>
+                            <p>   Latest Tnx</p>
 
                             <table class="table table-bordered">
 
@@ -440,69 +412,14 @@
                                     <th>created_at</th>
                                     <th>current_balance</th>
                                     <th>previous_balance</th>
+                                    <th>Tnx Type</th>
                                 </tr>
                                 </thead>
 
-                                <tbody>
-                                @foreach($consumerDeposits as $index=>$row)
-                                    <tr>
-                                        <td>{{$index+1}}</td>
-                                        <td>{{$row->ncard_reference}}</td>
-                                        <td>{{$row->amount}}</td>
-                                        <td>{{$row->created_at}}</td>
-                                        <td>{{$row->current_balance}}</td>
-                                        <td>{{$row->previous_balance}}</td>
-                                    </tr>
-
-                                @endforeach
+                                <tbody id="c-tnx">
                                 </tbody>
                             </table>
 
-                        </div>
-
-                        <div class="col-md-12 result-window">
-
-                            <p>   Latest five payments</p>
-                            <table class="table table-bordered">
-                                <thead>
-
-                                <tr>
-                                    <th>NO</th>
-                                    <th>reference</th>
-                                    <th>amount</th>
-                                    <th>created_at</th>
-                                    <th>current_balance</th>
-                                    <th>previous_balance</th>
-                                    <th>phone_number</th>
-{{--                                    <th>Total</th>--}}
-                                </tr>
-                                </thead>
-
-                                <tbody>
-                                <?php $sum  = 0; ?>
-                                @foreach($consumerPayments as $index=>$row)
-
-                                    <?php $sum  =  $sum+$row->amount ?>
-                                    <tr>
-                                        <td>{{$index+1}}</td>
-                                        <td>{{$row->reference}}</td>
-                                        <td>{{$row->amount}}</td>
-                                        <td>{{$row->created_at}}</td>
-                                        <td>{{$row->current_balance}}</td>
-                                        <td>{{$row->previous_balance}}</td>
-                                        <td>{{$row->phone_number}}</td>
-
-
-
-                                    </tr>
-                                @endforeach
-
-                                <tr>
-                                    <td colspan="2">Total</td>
-                                    <td><strong>{{$sum}}</strong></td>
-                                </tr>
-                                </tbody>
-                            </table>
                         </div>
 
                         @include('wallets.actions.disable_account_modal')
@@ -529,19 +446,37 @@
 @section('js')
 
     <script>
+
+
         $(function (){
 
+            let tnxUrl  = '{{url('consumer-transactions/get-default-tnx')}}'
+
+            let account  =  $('#wallet_id').val();
+            console.log('account '+account+' url '+tnxUrl)
+            $.get(tnxUrl,{account:account},function (result) {
+
+                let tbody  =  $('#c-tnx');
+
+                for (let i=0; i<result.length; i++){
+
+                    let tr ='<tr><td>'+(i+1)+'</td><td>'+result[i].ncard_reference+'</td><td>'+result[i].amount+
+                        '</td><td>'+result[i].created_at+'</td><td>'+result[i].consumer_current_balance+'</td>' +
+                        '<td>'+result[i].consumer_previous_balance+'</td><td>'+result[i].tnx_type+'</td></tr>'
+
+                    tbody.append(tr);
+
+                }
+
+                });
             let event  =  '{{url('active-event')}}';
 
-            console.log('sss'+event)
 
             $('.eventCode').html('')
 
             $.get(event, function (data){
 
                 let events =   data.result;
-
-                console.log(events)
 
                 $('.eventCode').append('<option></option>');
 

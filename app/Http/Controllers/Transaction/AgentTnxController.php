@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Agent;
+use App\Exports\AgentTransactionByDate;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AgentTnxController extends Controller
 {
@@ -32,12 +34,17 @@ class AgentTnxController extends Controller
         }
 
         $tnx_type = $request->tnx_type;
+
         if ($tnx_type=='C'){
             $result  = DB::select('CALL GetAgentCreditSP (?,?,?)',array($agent_code,$start_date,$end_date));
 
         }else{
             $result  = DB::select('CALL GetAgentDebitSP (?,?,?)',array($agent_code,$start_date,$end_date));
 
+        }
+        if ($_POST['export']){
+
+         return   Excel::download(new AgentTransactionByDate($result),'tnx-data-'.time().'.xlsx');
         }
         session()->flashInput($request->input());
 

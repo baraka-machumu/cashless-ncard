@@ -105,7 +105,7 @@
                     <div class="dropdown-menu dropdown-menu-right user-dd animated">
 
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="javascript:void(0)"><i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a>
+                        <a class="dropdown-item" href="{{url('auth/change-password')}}"><i class="ti-settings m-r-5 m-l-5"></i> Change Password</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{route('logout')}}"><i class="fa fa-power-off m-r-5 m-l-5"></i> Logout</a>
                         <div class="dropdown-divider"></div>

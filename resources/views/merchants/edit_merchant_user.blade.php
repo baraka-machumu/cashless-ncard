@@ -6,79 +6,68 @@
 
     <div class="container-fluid">
 
-        <div class="row">
-            <div class="col-md-12 h4-background">
-                <h4>Edit Merchant</h4>
+        <div class="page-breadcrumb">
+            <div class="row">
+                <div class="col-12 d-flex no-block align-items-center">
+                    <div class="user-details-round-icon">
+                        <span>{{mb_strtoupper(substr('Edit Merchant User',0,1))}}</span>
+                    </div>
+                    <h4 class="page-title">Edit Merchant User</h4>
 
+                </div>
             </div>
-            <div class="col-md-12">
+        </div>
 
 
-                <div class="card">
+            <form action="{{url('merchant/update-user',$id)}}" method="post">
 
-                        {{csrf_field()}}
+                {{csrf_field()}}
 
-                        <div class="row">
+                <div class="row">
 
+                    <div class="col-md-12">
 
-                         <form action="{{url('merchant.users.update')}}" method="post">
+                        <div class="form-group" id="s">
 
-                             {{csrf_field()}}
-                             <div class="col-md-12">
+                            <label for="merchant-agent-fname" >First Name </label> <br>
 
-                                 <div class="form-group" id="s">
+                            <input type="text" name="first_name" value="{{$merchantAgent->first_name}}" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
 
-                                     <label for="merchant-agent-fname" >First Name </label> <br>
+                        <div class="form-group" id="s">
 
-                                     <input type="text" name="first_name" value="{{$merchantAgent->first_name}}" class="form-control" required>
-                                 </div>
+                            <label for="merchant-agent-lname" >Last Name </label> <br>
 
-                                 <div class="form-group" id="s">
-
-                                     <label for="merchant-agent-lname" >Last Name </label> <br>
-
-                                     <input type="text" name="last_name"  value="{{$merchantAgent->last_name}}" class="form-control" required>
-
-                                 </div>
-
-                                 {{--                                        <div class="form-group" id="s">--}}
-
-                                 {{--                                            <label for="merchant-agent-email" >Email </label> <br>--}}
-
-                                 {{--                                            <input type="text" name="email[]"  value="{{$$merchantAgent->email}}" class="form-control">--}}
-                                 {{--                                        </div>--}}
-
-                                 <div class="form-group" id="s">
-
-
-                                     <label for="merchant-agent-phone_number" >Phone number </label> <br>
-
-                                     <input type="text" name="phone_number"  value="{{$merchantAgent->phone_number}}"  required class="form-control">
-
-                                 </div>
-
-                                 <div class="form-group">
-
-                                     <div>
-
-                                         <button class="btn btn-info btn-sm">Save</button>
-                                     </div>
-
-                                 </div>
-
-
-                             </div>
-
-                         </form>
+                            <input type="text" name="last_name"  value="{{$merchantAgent->last_name}}" class="form-control" required>
 
                         </div>
 
-                    </form>
+                    </div>
+                    <div class="col-md-12">
+
+
+                        <div class="form-group" id="s">
+
+                            <label for="merchant-agent-phone_number" >Phone number </label> <br>
+
+                            <input type="text" name="phone_number"  value="{{$merchantAgent->phone_number}}"  required class="form-control">
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+
+                        <div>
+                            <button class="btn btn-info btn-sm" style="margin-left: 15px;">Save</button>
+                        </div>
+
+                    </div>
+
+
                 </div>
-
-
-            </div>
-        </div>
+            </form>
 
     </div>
 

@@ -31,20 +31,15 @@ class TicketEngineController extends Controller
             ];
 
         $dataFromApi  =   Http::post($URL_TICKET,$requestBody);
+        $result  =  json_decode($dataFromApi);
+        $resultP  =null;
 
-        $result  =  $dataFromApi->json();
-
-
-//        return $result;
-
-        if ($result['resultcode']=='01'){
-
-            Session::flash('alert-warning',' '.strtoupper($result['message']));
-            return back();
-
+        if ($result->resultcode=='01'){
+            Session::flash('alert-danger','No transaction');
+            return  redirect('support/customer-search');
         }
 
-        $resultP  =  false;
+        $resultP  =  true;
 
         return view('support.ticket', compact('result','resultP'));
 

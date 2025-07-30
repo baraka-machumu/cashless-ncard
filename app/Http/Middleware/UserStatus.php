@@ -17,9 +17,10 @@ class UserStatus
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::user()->status==0){
+        $user  =  Auth::user();
+        if ($user->status!=1 || $user->is_approved=0 ){
 
-            Session::flash('alert-danger','You are account is disabled');
+            Session::flash('alert-danger','You are account is not active');
             Auth::logout();
             return redirect('/');
 

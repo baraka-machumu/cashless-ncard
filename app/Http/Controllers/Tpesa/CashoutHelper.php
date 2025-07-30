@@ -78,22 +78,6 @@ class CashoutHelper
 
         try {
 
-//            DB::beginTransaction();
-
-//            $merchant  = MerchantCashIn::query()->lockForUpdate()->where(['merchant_tin'=>$tin])->first();
-//
-//            if ($amount<0){
-//
-//                Log::warning('No Enough Balance');
-//
-//                Log::channel('t-pesa-log')->error('No Enough Balance for '.$tin);
-//
-//                return response()->json(['resultcode'=>'01','message'=>'No enough balance']);
-//            }
-//
-//            $merchant->amount   = $merchant->amount-($amount+$commission);
-//            $merchant->total_cashout  =  $merchant->total_cashout+($amount+$commission);
-//            $merchant->save();
 
             $nCollection  =  NcardCollectionAccount::query()->where(['account_number'=>'003003'])->first();
 
@@ -135,8 +119,6 @@ class CashoutHelper
 
                 DB::select('call UpdateForFailedMerchantDailyCollectionSP(?,?)',array($tin,$date));
 
-//                Log::warning($responseBody);
-
                 Log::channel('t-pesa-log')->error(json_encode($responseBody));
 
                 return response()->json(['resultcode'=>'01','message'=>' '.$result->message]);
@@ -156,15 +138,8 @@ class CashoutHelper
         }
 
         catch (\Exception $exception){
-
-//            DB::rollBack();
-
-            Log::channel('t-pesa-log')->error('Processing error'.$exception->getMessage());
-            Log::channel('t-pesa-log')->error('Processing error Line code'.$exception->getLine());
             Log::channel('t-pesa-log')->error('Processing error'.$exception->getTraceAsString());
-
             return response()->json(['resultcode'=>'01','message'=>'Processing error, please try again '.$exception->getMessage()]);
-
         }
 
     }

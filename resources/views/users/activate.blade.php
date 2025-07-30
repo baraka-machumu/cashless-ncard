@@ -33,7 +33,7 @@
                                         </div>
                                     </div>
 
-                                        <input type="hidden" id="userIdActivate" name="userId">
+                                    <input type="hidden" id="userId" name="userId" value="{{$user->user_id}}">
 
                                 </div>
 

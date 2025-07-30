@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title')</title>
-
+    <meta http-equiv="Content-Security-Policy" content="[directive] [resource type]"> e.g <meta http-equiv="Content-Security-Policy" content="default-src https:">
     <link rel="icon" type="image/png" sizes="16x16" href="{{asset('images/favicon.png')}}">
     <title>NCARD | Login</title>
     <!-- Custom CSS -->
@@ -22,7 +22,6 @@
     {{--<link href="../../assets/libs/flot/css/float-chart.css" rel="stylesheet">--}}
     <!-- Custom CSS -->
 
-    {{--<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements--}}
     @yield('stylesheets')
 
     <style>
@@ -36,8 +35,6 @@
 
         }
     </style>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 </head>
 <body>
 <!-- ============================================================== -->

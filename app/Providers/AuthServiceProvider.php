@@ -34,6 +34,18 @@ class AuthServiceProvider extends ServiceProvider
 
         });
 
+        Gate::define('debit-adjustment',function ($user){
+
+            return Permission::debitAdjustment();
+
+        });
+
+        Gate::define('approve-adjustment',function ($user){
+
+            return Permission::approvedebitAdjustment();
+
+        });
+
         Gate::define('manage-user',function ($user){
 
             return Permission::managerUser();

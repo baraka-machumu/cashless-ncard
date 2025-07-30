@@ -64,11 +64,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-
         if ($exception instanceof  TokenMismatchException){
-
-            return  redirect('/');
-            
+            if ($request->routeIs('login-request')){
+                return  redirect('/');
+            }
         }
         return parent::render($request, $exception);
 

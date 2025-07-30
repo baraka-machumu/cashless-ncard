@@ -90,19 +90,26 @@ class AgentsController extends Controller
 
              */
 
-            $res =  DB::select('call PortalSaveRequestTopupSP(?,?,?,?,?)',
-                [$agent_code,$reference,$amount,$channel_reference,Auth::user()->id]);
+//            $res =  DB::select('call PortalSaveRequestTopupSP(?,?,?,?,?)',
+//                [$agent_code,$reference,$amount,$channel_reference,Auth::user()->id]);
+//
+//            if ($res[0]->status_code!='300'){
+//                Session::flash('alert-danger',$res[0]->message);
+//                return back();
+//            }
+            $limit  =  DB::table('subscriber_wallet_limits')
+                ->select('balance_limit')->where(['limit_type_code'=>'22'])->first();
 
-            if ($res[0]->status_code!='300'){
-                Session::flash('alert-danger',$res[0]->message);
-                return back();
+            if ($amount+$agent->amount>$limit->balance_limit){
+                Session::flash('alert-danger','Limit Exceed');
+
+                return redirect('/agents/'.$agent_code);
+
             }
 
             DB::beginTransaction();
-
             $previousBalance =  $agent->amount;
             $currentBalance = $previousBalance+$amount;
-
             $agentDeposit  =  new AgentDeposit();
             $agentDeposit->agent_wallet_id =  $agent_code;
             $agentDeposit->amount =  $amount;
@@ -112,13 +119,13 @@ class AgentsController extends Controller
             $agentDeposit->reference  = $reference;
             $agentDeposit->created_by  = Auth::user()->id;
             $agentDeposit->source_wallet_number  =  '008008';
-            $agentDeposit->api2_response_code  =  '00'; //means pending , //10 means send., 11 means successful , 12 means failed
+//            $agentDeposit->api2_response_code  =  '00'; //means pending , //10 means send., 11 means successful , 12 means failed
 
             $agentDeposit->save();
 
             $agent->amount  =  $currentBalance;
             $agent->previous_balance =  $previousBalance;
-            $req=$agent->save();
+            $agent=$agent->save();
 
             Log::channel('tx-agent-deposit')->error('Successful top up : '.$agent_code);
 
@@ -155,8 +162,7 @@ class AgentsController extends Controller
 //                    'message'=>'Success'
 //                ]);
 
-            if ($req){
-
+            if ($agent){
                 DB::commit();
                 Session::flash('alert-success','successful credited');
 
@@ -173,6 +179,7 @@ class AgentsController extends Controller
         catch (\Throwable $exception){
 
             DB::rollBack();
+            Log::error('AGENT-TOP',['MESSAGE'=>$exception]);
 //            DB::table('agent_topup_request_logs')
 //                ->where(['ref_no'=>$reference])->update(['message'=>'Internal Server Error Ncard code '.$is_success_on_agent_api]);
 //            Log::error('AGENT-TOPUP-ERROR',['MESSAGE'=>$exception]);
@@ -231,17 +238,17 @@ class AgentsController extends Controller
 
     public function store(Request $request)
     {
+
+		$request->merge(array_map('strip_tags', $request->all()));
         $validator = Validator::make($request->all(),
             [
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'gender' => 'required',
-                'location' => 'required',
-                'district_id' => 'required',
-                'phone_number' => 'required',
-                'agent_code'=> 'required',
-                'pin'=>'required',
-                // 'top_up_source'=>'required'
+                'first_name' => 'required|string',
+                'last_name' => 'required|string',
+                'gender' => 'required|string',
+                'location' => 'required|string',
+                'district_id' => 'required|numeric',
+                'phone_number' => 'required|unique:agents|string',
+                'agent_code'=> 'required|string',
             ]);
 
         if ($validator->fails()){
@@ -261,17 +268,25 @@ class AgentsController extends Controller
             $location =  $request->get('location');
             $email  =  $request->get('email');
             $phone_number  =  $request->get('phone_number');
-            $pin  =  $request->get('pin');
+            $pin  =  RandomGenerator::randomNumber(1001,9999);
             $top_up_source  = $request->top_up_source;
             $code = $request->get('agent_code');
             $checkPhone =  Agent::query()->where(['phone_number'=>$phone_number])->first();
+            if ($checkPhone){
+                if ($checkPhone->email==$email){
+                    Session::flash('alert-danger', 'This email already exists');
+                    return  back();
+                }
+            }
             $checkCode =  Agent::query()->where(['agent_code'=>$code])->first();
-
             if ($checkCode){
                 Session::flash('alert-danger', 'Agent Code exist');
+                return  back();
             }
             if ($checkPhone){
                 Session::flash('alert-danger', 'Phone Number exist');
+                return  back();
+
             }
             $agent = new Agent();
             $agent->first_name = $first_name;
@@ -321,24 +336,26 @@ class AgentsController extends Controller
             if ($check_success){
                 $message = 'Agent wallet Successful created';
                 DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$code,'AGENT','SAVE'));
+
+                $msisdn  = RandomGenerator::addPrefixExtra($phone_number);
+                $password =  User::generatePassword();
+
+                $message = 'Password yako ya kuingia kwenye mfumo ni '.$password.' Pin ya malipo ni '.$pin;
+                SmsHelper::sendSms($message,$msisdn);
+
                 DB::commit();
-                $resultApi= ApiHelper::sendAgentInfo($code);
-
-                if ($resultApi->status_code!='300'){
-                    $message = $message.' But Failed to update to new lipa system agent';
-                }
-
                 Session::flash('alert-success',$message);
                 return  redirect('agents/'.$code);
             }
 
             DB::rollBack();
-            return  back()->withInput();
+            return  redirect()->back()->withInput();
         }catch (\Throwable $exception){
             Log::error('AGENT-EX',['MESSAGE'=>$exception]);
             DB::rollBack();
             Session::flash('alert-danger','Server error');
-            return  back()->withInput();
+            return redirect('agents/create')->withInput();
+
         }
     }
 
@@ -395,6 +412,11 @@ class AgentsController extends Controller
             $agentPos->created_by  = Auth::user()->id;
 
             $success = $agentPos->save();
+
+			     $agent =  Agent::where('agent_code',$agent_code)->first();
+
+          $message = 'Password yako ya kuingia kwenye mfumo ni '.$password.' kwa pos  '.$imei_no[$i];
+                SmsHelper::sendSms($message,$agent->phone_number);
 
         }
 
@@ -471,7 +493,7 @@ class AgentsController extends Controller
 
             DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$agent_code,'AGENT','VIEW'));
 
-            $failed_log_tx     =  DB::select('call GetLatestFailedAgentToupSP(?)',[$agent_code]);
+            $failed_log_tx     = [];// DB::select('call GetLatestFailedAgentToupSP(?)',[$agent_code]);
 
             return view('agents.show_agent',compact('failed_log_tx','account','agent_wallet','agent_code','pos','agent_pos','agent','balance','banks','branches'));
 
@@ -481,7 +503,7 @@ class AgentsController extends Controller
             Log::error($exception);
 
             Session::flash('alert-danger','Some Info is Missing, Contact Admin '.$exception->getMessage());
-            return  back();
+            return  redirect()->back();
 
         }
 

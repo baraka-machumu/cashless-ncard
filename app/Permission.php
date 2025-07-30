@@ -24,6 +24,23 @@ class Permission extends Model
 
     }
 
+    public  static function debitAdjustment()
+    {
+
+        return self::getPermission(PermissionList::DEBIT_ADJUSTMENT);
+
+    }
+
+
+    public  static function approvedebitAdjustment()
+    {
+
+        return self::getPermission(PermissionList::APPROVE_DEBIT_ADJUSTMENT);
+
+    }
+
+
+
     public  static function customerRefund()
     {
         return self::getPermission(PermissionList::CUSTOMER_REFUND);

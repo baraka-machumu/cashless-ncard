@@ -14,11 +14,8 @@ class ReportController extends Controller
 
     public function consumerReports()
     {
-
-
         $reports = Report::where('report_type', 3)->get();
         return view('reports.consumer_reports', compact('reports'));
-
     }
 
     public function agentReports()
@@ -95,6 +92,7 @@ class ReportController extends Controller
 
     public  function  consumerStatement(Request  $request){
 
+        set_time_limit(0);
         $start_date  =  $request->start_date;
         $end_date  =  $request->end_date;
         $wallet_option  =  $request->wallet_option;
@@ -102,14 +100,13 @@ class ReportController extends Controller
 
         if (!isset($_GET['get-report'])){
 
-            return false;
+           // return false;
             return view('reports.consumer.statement');
         }
 
         $wp = 'cw.wallet_id';
 
         if ($wallet_option=='C'){
-
             $wp  =  'cc.card_number';
         } else if ($wallet_option=='P') {
 
@@ -122,9 +119,6 @@ class ReportController extends Controller
             ->join('consumers as c','c.id','=','cw.consumers_id')
             ->join('consumer_cards as cc','cc.consumer_id','=','c.id')
             ->where([$wp=>$number,'c.status_id'=>1])->first();
-
-
-
         if (app()->environment()=='local'){
 
             $url  =  Config('api.TEST_JASPER_SERVER');
@@ -140,20 +134,16 @@ class ReportController extends Controller
         $password  =  "jasperadmin";
 
         $server  =  new Client($url,$user,$password);
-
         $report_url =  '/reports/cashless/CustomerStatement';
 
         $fullname  =  $customer->first_name.' '.$customer->last_name;
 
-
-        $inputControls = array('StartDate'=>$start_date,'EndDate'=>$end_date,'customerName'=>$fullname,'WalletNo'=>$customer->wallet_id,'PhoneNo'=>$customer->phone_number,'Balance'=>$customer->balance);
-
+        $inputControls = array('StartDate'=>$start_date,'EndDate'=>$end_date,
+            'customerName'=>$fullname,'WalletNo'=>$customer->wallet_id,
+            'PhoneNo'=>$customer->phone_number,'Balance'=>$customer->balance);
         $getReport  =  $server->reportService()->runReport($report_url,'pdf',null,null,$inputControls);
         header('Content-Type: application/pdf');
-
         echo  $getReport;
-
-
     }
 
 }

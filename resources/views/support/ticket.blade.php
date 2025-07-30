@@ -70,36 +70,36 @@
                 <table class="table table-bordered table-striped">
                     <tbody>
                     <tr>
-                        <td>Ticket Number </td><td>{{$result['TicketNo']}}</td>
+                        <td>Ticket Number </td><td>{{$result->TicketNo}}</td>
                     </tr>
                     <tr>
 
-                        <td>Ticket Reference </td><td>{{$result['TicketRef']}}</td>
+                        <td>Ticket Reference </td><td>{{$result->TicketRef}}</td>
                     </tr>
                     <tr>
-                        <td>Ticket Category </td><td>{{$result['TicketCategoryName']}}</td>
+                        <td>Ticket Category </td><td>{{$result->TicketCategoryName}}</td>
                     </tr>
                     <tr>
-                        <td>Ticket Amount </td><td>{{$result['Amount']}}</td>
+                        <td>Ticket Amount </td><td>{{$result->Amount}}</td>
                     </tr>
                     <tr>
-                        <td>Ticket Paid date </td><td>{{$result['PaidDate']}}</td>
-
-                    </tr>
-
-                    <tr>
-                        <td>Number Of Attempt </td><td>{{$result['NoAttempt']}}</td>
+                        <td>Ticket Paid date </td><td>{{$result->PaidDate}}</td>
 
                     </tr>
 
                     <tr>
-                        <td>Last Attempted Date </td><td>{{$result['LastAttemptDate']}}</td>
+                        <td>Number Of Attempt </td><td>{{$result->NoAttempt}}</td>
+
+                    </tr>
+
+                    <tr>
+                        <td>Last Attempted Date </td><td>{{$result->LastAttemptDate}}</td>
 
                     </tr>
                     <tr>
                         <td>Is Validated </td><td>
 
-                            @if($result['IsValidated']==false)
+                            @if($result->IsValidated==false)
 
                                 NO
                                 @else
@@ -111,7 +111,7 @@
                     </tr>
 
                     <tr>
-                        <td>Validation Time </td><td>{{$result['ValidatedDate']}}</td>
+                        <td>Validation Time </td><td>{{$result->ValidatedDate}}</td>
 {{--                        <td>Validation Time </td><td>{{date('Y-m-d H:i:s ',strtotime($result['ValidatedDate']))}}</td>--}}
 
                     </tr>
@@ -120,25 +120,24 @@
                         <td colspan="2" style="background-color: #1C729E; color: white;">Attempts</td>
                     </tr>
 
-@if(empty($result['Attempts'][0]))
-    <tr>
-        <td colspan="2"  style="color: firebrick">No Attempts</td>
-    </tr>
+{{--@if(empty($result->Attempts[0]))--}}
+{{--    <tr>--}}
+{{--        <td colspan="2"  style="color: firebrick">No Attempts</td>--}}
+{{--    </tr>--}}
 
-    @else
-                    @foreach($result['Attempts'] as $row)
+{{--    @else--}}
+{{--                    @foreach($result->Attempts as $row)--}}
 
-                        <tr>
-                            <td>AttemptDate </td><td>{{$row['AttemptDate']}}</td>
-                            <td>TicketCategory </td><td>{{$row['TicketCategory']}}</td>
-                            <td>LastValidatedDate </td><td>{{$row['LastValidatedDate']}}</td>
-                            <td>ValidatePoint </td><td>{{$row['ValidatePoint']}}</td>
+{{--                        <tr>--}}
+{{--                            <td>TicketCategory </td><td>{{$row->TicketCategory}}</td>--}}
+{{--                            <td>LastValidatedDate </td><td>{{$row->LastValidatedDate}}</td>--}}
+{{--                            <td>ValidatePoint </td><td>{{$row->ValidatePoint}}</td>--}}
 
-                        </tr>
-                    @endforeach
+{{--                        </tr>--}}
+{{--                    @endforeach--}}
 
 
-                    @endif
+{{--                    @endif--}}
                     </tbody>
                 </table>
 

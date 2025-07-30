@@ -38,7 +38,7 @@
                                 <div class="col-md-5">
                                     <div class="form-group">
                                         <label for="mname">Merchant Name</label>
-                                        <input type="text" required pattern="[A-Za-z]*"   class="form-control" id="mname" name="name" >
+                                        <input type="text" required    class="form-control" id="mname" name="name" >
                                     </div>
                                 </div>
                                 <div class="col-md-4">

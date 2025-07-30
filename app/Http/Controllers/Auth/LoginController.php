@@ -126,7 +126,9 @@ public function username()
 
     public function logout(Request $request)
     {
+
         Cache::forget(CheckSessionTimeout::getSessionKey());
+       // DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,'Logout ',$agent_code,'LOGIN','LOGOUT'));
 
         Auth::logout();
 

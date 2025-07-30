@@ -7,6 +7,7 @@ use App\ConsumerDeposit;
 use App\District;
 use App\Region;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -18,12 +19,10 @@ class DashboardController extends Controller
 //    }
 
     public  function  adminDashboard(){
+        $desc  = 'View dashboard';
+        DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,null,'DASHBOARD','VIEW'));
 
-        $data =  $this->getTotalForDashboard();
-
-        $deposits  =  ConsumerDeposit::query()->sum('amount');
-
-        return view('dashboard',compact('data'));
+        return view('dashboard');
     }
 
     public  static  function getAccessToUserInfo($id){
@@ -91,31 +90,33 @@ class DashboardController extends Controller
 
     // functions that return total data for particular table in dashboard
     public function  getTotalForDashboard(){
-
+        ini_set('memory_limit','2040M');
+        set_time_limit(0);
         $data  =[];
 
-        $merchants  =  DB::table('merchants')->count();
-        $users  =  DB::table('users')->count();
-        $roles  =  DB::table('roles')->count();
-        $agents  =  DB::table('agents')->count();
-        $permissions  =  DB::table('permissions')->count();
+        $merchants  =  DB::table('merchants')->count('tin');
+        $pos  =  DB::table('pos')->count('imei_no');
+        $agents  =  DB::table('agents')->count('agent_code');
         $service  =  DB::table('services')->count();
-        $consumers  =  DB::table('consumers')->count();
-        $active_cards  =  DB::table('consumer_cards')->count();
-        $permissions  =  DB::table('permissions')->count();
-        $permissions  =  DB::table('permissions')->count();
-
+        $consumers  =  DB::table('consumers');
+        $cards  =  DB::table('consumer_cards')->select('card_uid');
+        $topup_channel=DB::table('gateways')->count('id');
+        $deposits=0;//DB::table('consumer_deposits')->sum('amount')??0.00;
+        $payments=0;//DB::table('consumer_payments')->sum('amount');
 
         $data['merchants'] =  $merchants;
-        $data['users'] =  $users;
-        $data['roles'] =  $roles;
-        $data['permissions'] =  $permissions;
-        $data['consumers'] =  $consumers;
+        $data['consumers'] =  count($consumers->where(['status_id'=>1])->get());
+        $data['in_consumers'] =  count($consumers->where('status_id','!=',1)->get());
+
         $data['agents'] =  $agents;
         $data['services'] =  $service;
-        $data['users'] =  $users;
-        $data['users'] =  $users;
-        $data['active_cards'] =  $active_cards;
+        $data['pos'] =  $pos;
+        $data['active_cards'] =  count($cards->where(['status_id'=>'1'])->get());
+        $data['in_cards'] =  count($cards->where('status_id','!=',1)->get());
+
+        $data['topup_channel'] =  $topup_channel;
+        $data['deposits'] =  $deposits;
+        $data['payments'] =  $payments;
 
         return $data;
 

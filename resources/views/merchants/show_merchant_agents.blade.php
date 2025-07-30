@@ -71,7 +71,7 @@
                         <td>{{$merchantAgent->tin}}</td>
                         <td>
 
-                            <a href="{{url('merchants/edit-user',$merchantAgent->tin)}}"   class="btn btn-cyan btn-sm"><i class="fa fa-edit"></i> Edit</a>
+                            <a href="{{url('merchants/edit-user',$merchantAgent->id)}}"   class="btn btn-cyan btn-sm"><i class="fa fa-edit"></i> Edit</a>
 
                         </td>
 

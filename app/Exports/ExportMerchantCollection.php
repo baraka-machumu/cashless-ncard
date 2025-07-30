@@ -37,11 +37,7 @@ class ExportMerchantCollection implements FromCollection, WithHeadings
 
         return [
 
-            'Wallet ID',
-            'Total Amount',
-            'Reference',
-            'Date',
-            'Wallet Type'
+            'amount','created_at','card','reference','tx_channel_ref','recipient_id' ,'tnx_date','description','terminal_device','agent_code'
         ];
 
     }

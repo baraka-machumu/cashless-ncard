@@ -32,12 +32,9 @@
 
     <!-- {{--<link href="../../assets/libs/flot/css/float-chart.css" rel="stylesheet">--}} -->
     <!-- Custom CSS -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @yield('stylesheets')
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-
-
 
     <style>
 
@@ -117,7 +114,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Your session is expiring soon</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">Ã—</button>
                     </div>
                     <div class="modal-body">
                         <p>
@@ -189,20 +186,20 @@
     let  agentGetAllPos=   '{{url('agents/getall/pos')}}';
 
 
-$("#viewParams").change(function() {
+    $("#viewParams").change(function() {
 
-if ($(this).val() == "1") {
-$('#viewParamsDiv').show();
+        if ($(this).val() == "1") {
+            $('#viewParamsDiv').show();
 
 
-} else {
-$('#viewParamsDiv').hide();
+        } else {
+            $('#viewParamsDiv').hide();
 
-    $('.uncheck').prop('checked',false);
+            $('.uncheck').prop('checked',false);
 
-}
-});
-$("#viewParams").trigger("change");
+        }
+    });
+    $("#viewParams").trigger("change");
 
     $("#viewParams2").change(function() {
         if ($(this).val() == "1") {

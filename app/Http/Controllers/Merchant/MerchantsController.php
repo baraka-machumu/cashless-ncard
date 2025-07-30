@@ -226,18 +226,7 @@ class MerchantsController extends Controller
 
         $success = $merchant->save();
 
-        $cashInAccount  = new MerchantCashIn();
 
-        $cashInAccount->merchant_tin =  $tin;
-        $cashInAccount->amount =  0;
-        $cashInAccount->save();
-
-        $cashInAccount  = new MerchantCashTaken();
-
-        $cashInAccount->merchant_tin =  $tin;
-        $cashInAccount->amount =  0;
-
-        $cashInAccount->save();
 
         if ($success){
 
@@ -392,7 +381,6 @@ class MerchantsController extends Controller
         } catch (\Exception $exception){
             DB::rollBack();
             Session::flash('alert-danger', 'Failed to add pos, try again '.$exception->getMessage());
-
         }
 
 
@@ -456,15 +444,12 @@ class MerchantsController extends Controller
 
 
 
-    public  function  editUserMerchant ($tin){
-
-        $merchantAgent =  MerchantAgent::where(['tin'=>$tin])->first();
-
-        return view('merchants.edit_merchant_user',compact('merchantAgent'));
-
+    public  function  editUserMerchant ($id){
+        $merchantAgent =  MerchantAgent::where(['id'=>$id])->first();
+        return view('merchants.edit_merchant_user',compact('merchantAgent','id'));
     }
 
-    public  function  updateMerchantAgentUsers(Request $request)
+    public  function  updateMerchantAgentUsers(Request $request,$id)
     {
 
         $firstName  =  $request->get('first_name');
@@ -480,13 +465,12 @@ class MerchantsController extends Controller
 
         }
 
-            $merchantAgent = new MerchantAgent();
+            $merchantAgent = MerchantAgent::where('id',$id)->first();
 
             $merchantAgent->first_name  =  $firstName;
             $merchantAgent->last_name  =  $lastName;
-//            $merchantAgent->email  =  $email[$i];
             $merchantAgent->phone_number  =  $phone_number;
-            $merchantAgent->password  = Hash::make(12345678);
+            $merchantAgent->password  =$phone_number;
             $merchantAgent->save();
 
         Session::flash('alert-success','Saved');
@@ -526,7 +510,7 @@ class MerchantsController extends Controller
         $merchant  =  DB::table('merchants as m')
             ->select('merchant_type','m.name','m.tin','m.phone_number','m.account_number','m.location','m.email',
                 'm.district_id','m.status_id','m.branch_id','m.service_id','bank_branches.bank_id','districts.region_id')
-            ->join('bank_branches','bank_branches.bank_id','=','m.branch_id')
+            ->leftJoin('bank_branches','bank_branches.bank_id','=','m.branch_id')
             ->join('districts','districts.id','=','m.district_id')
             ->where('m.tin',$tin)
 
@@ -611,23 +595,16 @@ class MerchantsController extends Controller
     public  function enableAccount(Request $request){
 
         $tin  =  $request->tin;
-
         $success  = DB::table('merchants')
             ->where('tin', $tin)
             ->update(['status_id' => 1]);
 
         if ($success){
-
             Session::flash('alert-success',' Merchant successful enabled');
-
         }
-
         else {
-
             Session::flash('alert-danger', 'Failed to enable the Merchant');
-
         }
-
         return redirect('merchants/'.$tin);
 
     }

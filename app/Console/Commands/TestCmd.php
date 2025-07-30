@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Helper\NameSearchApi;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class TestCmd extends Command
 {
@@ -12,7 +14,7 @@ class TestCmd extends Command
      *
      * @var string
      */
-    protected $signature = 'testcmd {input}';
+    protected $signature = 'testcmd {counter} {date}';
 
     /**
      * The console command description.
@@ -39,9 +41,17 @@ class TestCmd extends Command
     public function handle()
     {
 
-        $input = $this->argument('input');
+        $counter  = $this->argument('counter');
+        $date  = $this->argument('date');
 
-       echo   NameSearchApi::getNameByPhoneNo($input);
+        for ($i=0; $i<$counter; $i++){
+            echo  'date --- up '.$date."\n";
+            DB::select('CALL manualUpdateMerchantCollection(?)',[$date]);
+
+            $date =  Carbon::make($date)->addDay();
+            echo  'date --- down '.$date."\n";
+
+        }
 
     }
 }

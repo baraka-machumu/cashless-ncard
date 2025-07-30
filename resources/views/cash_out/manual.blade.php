@@ -46,7 +46,7 @@
 
                                     <label>Action type</label>
 
-                                    <select class="form-control" name="tin" REQUIRED>
+                                    <select class="form-control" action="tin" REQUIRED>
 
                                         <option value="">--select action--</option>
 

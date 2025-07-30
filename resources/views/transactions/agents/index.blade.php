@@ -74,6 +74,8 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <button class="btn btn-info" type="submit" name="_xt-get">Search</button>
+                                            <button class="btn btn-info" type="submit" name="export">Export</button>
+
                                         </div>
                                     </div>
                                     <div class="col-md-6">

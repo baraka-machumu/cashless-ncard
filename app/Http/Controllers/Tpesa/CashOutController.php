@@ -41,26 +41,21 @@ class CashOutController extends Controller
         if(isset($_GET['check'])){
 
             $result = true;
-
             $tin = $request->tin;
+            $mname  =  Merchant::query()->select('name')->where(['tin'=>$tin])->first();
 
-            $mname  =  Merchant::query()->select('name')->where(['tin'=>$tin])->first()->$mname;
-
-                //->name;
-
+            if (!$mname){
+                Session::flash('alert-danger','Invalid merchant');
+                return  back();
+            }
+            $mname  = $mname->name;
             if ($request->action=='2'){
-
                 return  $this->viewManual($tin);
-
             }
             $ncardPolicy  =  DB::table('ncard_comission_policy')->select('percentage')->where(['merchant_tin'=>$tin])->first();
-
             $commission  = $ncardPolicy->percentage;
-
             $rev  =  DB::select('call GetDailyCollectionRevenueByTinNoSP (?)',array($tin));
-
         }
-
         return view('cash_out.index',compact('mname','rev','merchant','result','tin','commission'));
 
     }
@@ -109,7 +104,7 @@ class CashOutController extends Controller
 
         try {
 
-            $result  = DB::select('call GetCollectionForMerchantByDateSP(?,?)',array($tin,$date));
+            $result  = DB::select('call GetCollectionForMerchantFundByDateSP(?,?)',array($tin,$date));
 
 
 
@@ -132,25 +127,23 @@ class CashOutController extends Controller
                 }
 
                 Session::flash('alert-danger','Failed Amount is less than 0');
-                return back();
+                return  redirect('Fund/transfer-to-merchant');
 
             }
 
             Session::flash('alert-danger','Failed, no amount found in the record..');
 
-            return back();
+            return  redirect('Fund/transfer-to-merchant');
 
         }
 
         catch (\Throwable $exception){
 
-            Log::channel('t-pesa-log')->error('PUSH-ERROR '.$exception->getMessage());
-            Log::channel('t-pesa-log')->error('PUSH-ERROR-LINE'.$exception->getLine());
-            Log::channel('t-pesa-log')->error('PUSH-ERROR-LINE'.$exception->getTraceAsString());
+            Log::channel('t-pesa-log')->error('PUSH-ERROR ',['message'=>$exception]);
 
             Session::flash('alert-danger','Failed, server processing exception '.$exception->getMessage());
 
-            return back();
+            return  redirect('Fund/transfer-to-merchant');
 
         }
 
@@ -233,7 +226,7 @@ class CashOutController extends Controller
                 Log::channel('t-pesa-log')->error(json_encode($responseBody));
                 Session::flash('alert-danger',$result->message);
 
-                return back();
+                return  redirect('Fund/transfer-to-merchant');
 
               //  return response()->json(['resultcode'=>'01','message'=>' '.$result->message]);
 
@@ -248,31 +241,44 @@ class CashOutController extends Controller
             Log::channel('t-pesa-log')->error(json_encode($responseBody));
 
             Session::flash('alert-danger',$result->message);
-            return back();
-
+            return  redirect('Fund/transfer-to-merchant');
 
         }
         catch(\GuzzleHttp\Exception\GuzzleException $e) {
 
             Session::flash('alert-danger','Network Error Time-out');
-            return back();
+
+            return  redirect('Fund/transfer-to-merchant');
+
 
         }
         catch (\Throwable $exception){
-
-            Log::error($exception->getMessage());
-            Log::error($exception);
-
-            Log::channel('t-pesa-log')->error('PUSH-ERROR '.$exception->getMessage());
-            Log::channel('t-pesa-log')->error('PUSH-ERROR-LINE'.$exception->getLine());
-            Log::channel('t-pesa-log')->error('PUSH-ERROR-LINE'.$exception->getTraceAsString());
+            Log::channel('t-pesa-log')->error('PUSH-ERROR ',['message'=>$exception]);
 
             Session::flash('alert-danger','Failed, server processing exception '.$exception->getMessage());
 
-            return back();
+            return  redirect('Fund/transfer-to-merchant');
 
         }
 
 
+    }
+
+
+    public  function  updatePaymentStatus(Request  $request){
+        $refNumber  = decrypt($request->ref);
+        $txResp  = TpesaRequest::where(['reference'=>$refNumber])->first();
+        $txResp->resultcode ='00';
+        $txResp->message = 'success';
+        $txResp->status= 200;
+        $success=$txResp->save();
+
+        if ($success){
+            Session::flash('alert-success','Successful updated');
+
+        }else{
+            Session::flash('alert-danger','Failed, to update status');
+        }
+        return  redirect('Fund/transfer-to-merchant');
     }
 }
