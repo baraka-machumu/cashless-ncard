@@ -81,33 +81,10 @@ class AgentsController extends Controller
             return back();
         }
 
+        DB::beginTransaction();
         try{
 
-            /**
-             * CALL PROCEDURE TO SAVE THE LOGS FIRST
-             * `PortalSaveRequestTopupSP`(agentCode VARCHAR(10),refNo VARCHAR(100),amountTx DECIMAL(40,2),
-            userRefNo VARCHAR(100),userId BIGINT)
 
-             */
-
-//            $res =  DB::select('call PortalSaveRequestTopupSP(?,?,?,?,?)',
-//                [$agent_code,$reference,$amount,$channel_reference,Auth::user()->id]);
-//
-//            if ($res[0]->status_code!='300'){
-//                Session::flash('alert-danger',$res[0]->message);
-//                return back();
-//            }
-            $limit  =  DB::table('subscriber_wallet_limits')
-                ->select('balance_limit')->where(['limit_type_code'=>'22'])->first();
-
-            if ($amount+$agent->amount>$limit->balance_limit){
-                Session::flash('alert-danger','Limit Exceed');
-
-                return redirect('/agents/'.$agent_code);
-
-            }
-
-            DB::beginTransaction();
             $previousBalance =  $agent->amount;
             $currentBalance = $previousBalance+$amount;
             $agentDeposit  =  new AgentDeposit();
@@ -121,11 +98,18 @@ class AgentsController extends Controller
             $agentDeposit->source_wallet_number  =  '008008';
 //            $agentDeposit->api2_response_code  =  '00'; //means pending , //10 means send., 11 means successful , 12 means failed
 
-            $agentDeposit->save();
+          $deposit=  $agentDeposit->save();
+          if (!$deposit){
+              DB::rollBack();
+              Session::flash('alert-danger','Request could not complete.');
+              return redirect('/agents/'.$agent_code);
+
+          }
 
             $agent->amount  =  $currentBalance;
             $agent->previous_balance =  $previousBalance;
-            $agent=$agent->save();
+            $agent->updated_at=now();
+            $agentSuccess=$agent->save();
 
             Log::channel('tx-agent-deposit')->error('Successful top up : '.$agent_code);
 
@@ -133,36 +117,8 @@ class AgentsController extends Controller
 
             DB::update('call SaveInternalLogsSP(?,?,?,?,?,?)',array(Auth::user()->id,Auth::user()->email,$desc,$agent_code,'AGENT','SAVE'));
 
-            //CALL API2 TO SEND THE TRANSACTION
 
-//            $payload  = [
-//                'agent_code'=>$agent_code,
-//                'super_agent'=>'123456',
-//                'slip_path'=>$agent_code,
-//                'amount'=>$amount,
-//                'date'=>$agentDeposit->created_at,
-//                'source_wallet'=>'123456',
-//                'refNo'=>$reference
-//            ];
-//
-//            $result  =  ApiHelper::sendAgentTopup($payload);
-//
-//            $is_success_on_agent_api  =  '01';
-//            $response_ref_number = null;
-//            if ($result->status_code==300){
-//                $is_success_on_agent_api  =  '00';
-//                $response_ref_number=$result->data->OutTrxRefNo;
-//            }
-//
-//            $req=DB::table('agent_topup_request_logs')
-//                ->where(['ref_no'=>$reference,'agent_code'=>$agent_code])
-//                ->update(['response_dump'=>json_encode($result),
-//                    'response_code'=>$result->status_code,
-//                    'response_ref_number'=>$response_ref_number,
-//                    'message'=>'Success'
-//                ]);
-
-            if ($agent){
+            if ($agentSuccess){
                 DB::commit();
                 Session::flash('alert-success','successful credited');
 
@@ -180,9 +136,7 @@ class AgentsController extends Controller
 
             DB::rollBack();
             Log::error('AGENT-TOP',['MESSAGE'=>$exception]);
-//            DB::table('agent_topup_request_logs')
-//                ->where(['ref_no'=>$reference])->update(['message'=>'Internal Server Error Ncard code '.$is_success_on_agent_api]);
-//            Log::error('AGENT-TOPUP-ERROR',['MESSAGE'=>$exception]);
+
             Session::flash('alert-danger','Server Error');
             return redirect('/agents/'.$agent_code);
 

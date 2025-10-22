@@ -31,7 +31,7 @@
                         @can('manage-consumer')
                             <li class="sidebar-item"><a href="{{url('consumers')}}" class="sidebar-link"><i class="mdi mdi-note-outline"></i><span class="hide-menu">Manage Consumers</span></a></li>
                         @endcan
-                            @cannot('limit')
+                            @can('manage-user')
                                 <li class="sidebar-item"><a href="{{ url('limits-class') }}" class="sidebar-link"><i
                                             class="mdi mdi-note-outline"></i><span class="hide-menu">Limits</span></a>
                                 </li>
@@ -49,9 +49,7 @@
                             <li class="sidebar-item"><a href="{{url('services')}}" class="sidebar-link"><i class="mdi mdi-note-outline"></i><span class="hide-menu">Services</span></a></li>
                             <li class="sidebar-item"><a href="{{url('gateways')}}" class="sidebar-link"><i class="mdi mdi-note-outline"></i><span class="hide-menu">Gateways</span></a></li>
                         @endcan
-                        @can('manage-user')
-                            <li class="sidebar-item"><a href="{{url('limits')}}" class="sidebar-link"><i class="mdi mdi-note-outline"></i><span class="hide-menu">Limits</span></a></li>
-                        @endcan
+                   
 
                     </ul>
                 </li>

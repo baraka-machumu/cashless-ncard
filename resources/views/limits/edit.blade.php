@@ -35,25 +35,19 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="name">Class Name</label>
-                                <input type="text" class="form-control" name="class_name" id="name" required>
+                                <input type="text" class="form-control" Value="{{$limit->class_name}}" name="class_name" id="name" required>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="maxvalue">Max Amount Per Account</label>
-                                <input type="text" class="form-control"  name="balance_limit" required
+                                <input type="text" class="form-control"  value="{{$limit->balance_limit}}" name="balance_limit" required
                                        id="maxvalue">
                             </div>
                         </div>
 
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="maxvalue">Total Transaction Value Per Day</label>
-                                <input type="text" class="form-control"  name="total_debit_per_day" required
-                                       id="maxvalue">
-                            </div>
-                        </div>
+                  
 
                         <div class="col-md-4">
                             <div class="form-group">
@@ -77,13 +71,16 @@
                                 <select class="form-control" name="limit_type" required>
                                     <option>---select type---</option>
                                     @foreach($types as $row)
-                                        <option id="{{$row->code}}">{{$row->name}}</option>
+                                        <option id="{{$row->code}}"
+                                                    @if($limit->type == $row->code) selected @endif
+
+                                        >{{$row->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <button class="btn btn-primary" type="submit" id="sub-btn">Save</button>
                             </div>

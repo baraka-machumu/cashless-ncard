@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/','Auth\LoginController@showLoginForm')->name('login')->middleware('frame-guard');
-Route::post('/auth/login','Auth\LoginController@loginWeb')->name('login-request');
+Route::post('/login','Auth\LoginController@loginWeb')->name('login-request');
 
 Route::get('error-access', function (){
 
