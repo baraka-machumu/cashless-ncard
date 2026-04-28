@@ -49,7 +49,7 @@ class ExportDailyAgentBalance extends Command
             return 0;
         }
 
-        $filePath = '/home/balance/daily_agent_balance_' . date('Y_m_d_His') . '.csv';
+        $filePath = '/home/balance/agent/daily_agent_balance_' . date('Y_m_d_His') . '.csv';
 
         // Ensure directory exists
         if (!file_exists(dirname($filePath))) {

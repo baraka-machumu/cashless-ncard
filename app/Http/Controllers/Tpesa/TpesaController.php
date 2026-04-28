@@ -1,103 +1,100 @@
 <?php
 
-
 namespace App\Http\Controllers\Tpesa;
 
-
-use App\Http\Controllers\Agent\TpesaNcardFund;
 use App\Http\Controllers\Controller;
-use App\NcardDisbursementAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Monolog\Logger;
+use Illuminate\Support\Facades\Response;
+use Exception;
 
 class TpesaController extends Controller
 {
-
-    public  function  rePushCommutorRequest(Request  $request){
-        $InstTIN  = $request->InstTIN;
-        $Amount  = $request->Amount;
-        $DepositedDate = $request->DepositedDate;
-        $SourceWalletNo = $request->SourceWalletNo;
-        $DepositRefNo= $request->DepositRefNo;
-
-        $res  = Http::post('http://ip:3007/mvne/v1/energies/inst_topup',[
-            'InstTIN'=>$InstTIN,
-            'Amount'=>$Amount,
-            'DepositedDate'=>$DepositedDate,
-            'SourceWalletNo'=>$SourceWalletNo,
-            'DepositRefNo'=>$DepositRefNo,
-        ]);
-
-        $res   = json_decode($res);
-        Log::info('RESPOSEN',['MESSAGE'=>$res]);
-    }
-    public  function balance(){
-        $account  =  NcardDisbursementAccount::query()->get();
-        return view('tpesa.index',compact('account'));
-    }
-
-    public  function  checkBalance($account){
-
-        Log::info('account '.$account);
-
-        $result  = self::processBalanceCheck($account);
-
-        $resultcode  =  '0';
-
-        $result =  ($result['data']);
-
-        if ($result->errorCode!=200){
-
-            $resultcode  =  '01';
-
-        }
-        return response()->json(['message'=>$result->message,'resultcode'=>$resultcode,'balance'=>$result->result->balance]);
-
-    }
-
-    public  static  function  processBalanceCheck($account){
-
-        /** @var  $tpesaUrl */
-
-        $url  = Config('api.TEST_TPESA_NCARD_DISBURSEMENT_BALANCE_API');
-
+    public function callback(Request $request)
+    {
         try {
-
-            $http  = Http::post($url,[
-                'msisdn'=>$account,
-
-            ]);
-
-            $resultJson = json_encode($http->json());
-
-            $result = json_decode($resultJson);
-
-            Log::info($resultJson);
-
-            return ["code"=>TpesaNcardFund::SUCCESS,'data'=>$result];
-
-        }
-
-        catch (\Throwable $exception){
-
-            Log::channel('t-pesa-topup')->error($exception->getMessage());
-            Log::channel('t-pesa-topup')->error($exception->getTraceAsString());
-            Log::channel('t-pesa-topup')->error($exception->getLine());
-            Log::channel('t-pesa-topup')->error($exception);
-
-            $message  = 'SERVER COMMUNICATION GENERAL ERROR 500';
-
-            if ($exception->getCode()==0){
-
-                $message  =  'T-PESA CONNECTION PROBLEM';
+            // Basic request validation
+            $payload = $request->only(['reference', 'control_number']);
+            if (empty($payload['reference'])) {
+                Log::channel('t-pesa-log')->warning('callback-missing-reference', ['payload' => $request->all()]);
+                return Response::json(['error' => 'Missing reference'], 400);
             }
 
-            return ["code"=>TpesaNcardFund::FAILED,"message"=>$exception->getMessage()];
+            // Get client IP — consider trusting proxies if behind a load balancer
+            $clientIp = $request->ip();
 
+            // Config values
+            $allowedIps = [Config::get('api.GEPG_IP'),'127.0.0.1'];
+            $expectedKey = Config::get('api.TPESA_API_DISBURSEMENT_KEY');
+
+            // Normalize allowed IPs: allow a single string or an array in config
+            if (is_string($allowedIps)) {
+                $allowedIps = [$allowedIps];
+            } elseif (!is_array($allowedIps)) {
+                $allowedIps = [];
+            }
+
+            // Header value
+            $incomingKey = $request->header('tpesa-api-key');
+
+            // IP check
+            if (!in_array($clientIp, $allowedIps, true)) {
+                Log::channel('t-pesa-log')->info('security', ['message' => 'IP not allowed', 'ip' => $clientIp]);
+                return Response::json(['error' => 'IP not allowed'], 403);
+            }
+
+            // Header / key check using timing-safe comparison
+            if (empty($incomingKey) || empty($expectedKey) || !hash_equals((string)$expectedKey, (string)$incomingKey)) {
+                Log::channel('t-pesa-log')->info('security', ['message' => 'Invalid API key', 'ip' => $clientIp]);
+                return Response::json(['error' => 'Invalid API key'], 401);
+            }
+
+            Log::channel('t-pesa-log')->info('request', ['payload' => $request->all(), 'ip' => $clientIp]);
+
+            $reference = $payload['reference'];
+            $controlNumber = $payload['control_number'] ?? null;
+
+            // Find existing tpesa request by reference
+            $tpesa = DB::table('tpesa_request')
+                ->select('id', 'reference')
+                ->where('reference', $reference)
+                ->first();
+
+            if ($tpesa) {
+                // Use control_number from request (not $ref->control_number)
+                $updateData = ['updated_at' => now()];
+
+                if ($controlNumber !== null) {
+                    $updateData['account_number'] = $controlNumber;
+                }
+
+                $updated = DB::table('tpesa_request')
+                    ->where('id', $tpesa->id)
+                    ->update($updateData);
+
+                Log::channel('t-pesa-log')->info('db-result', [
+                    'is-success' => (bool)$updated,
+                    'tpesa_id' => $tpesa->id,
+                    'reference' => $reference
+                ]);
+
+                return Response::json(['status' => 'ok', 'updated' => (bool)$updated], 200);
+            } else {
+                Log::channel('t-pesa-log')->info('db-result-not-found', [
+                    'message' => 'tpesa_request not found',
+                    'reference' => $reference
+                ]);
+                return Response::json(['error' => 'reference not found'], 404);
+            }
+        } catch (Exception $e) {
+            Log::channel('t-pesa-log')->error('callback-exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'payload' => $request->all()
+            ]);
+            return Response::json(['error' => 'server error'], 500);
         }
-
-
     }
 }

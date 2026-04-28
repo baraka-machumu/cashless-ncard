@@ -13,18 +13,4 @@ use App\Http\Controllers\helper\HelperController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-/**
- *CARD MANAGEMENT
- */
-
-Route::group(['prefix'=>'card-management'], function (){
-
-    Route::post('send-batch-data','Card\CardManagementController@index');
-
-});
-
-Route::get('consumer-report-statement','Report\ReportController@consumerStatement');
-
-
-
+Route::post('merchant-gepg-call-back','Tpesa\TpesaController@callback');

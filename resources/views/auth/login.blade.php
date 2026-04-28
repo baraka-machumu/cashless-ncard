@@ -28,7 +28,7 @@
                         @endif
                     @endforeach
 
-                    <form method="post" action="{{url('auth/login')}}">
+                    <form method="post" action="{{url('/login')}}">
                         {{csrf_field()}}
 
 

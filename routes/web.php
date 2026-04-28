@@ -10,7 +10,6 @@ Route::get('/','Auth\LoginController@showLoginForm')->name('login')->middleware(
 Route::post('/login','Auth\LoginController@loginWeb')->name('login-request');
 
 Route::get('error-access', function (){
-
     return view('errors.login_access');
 });
 
@@ -36,7 +35,7 @@ Route::group(['middleware'=>['auth','user-is-active','firstLogin','token','XssSa
 
 });
 
-Route::get('/dashboard','DashboardController@adminDashboard')->name('dashboard');
+//Route::get('/dashboard','DashboardController@adminDashboard')->name('dashboard');
 Route::group(['middleware'=>['auth','user-is-active','firstLogin','session-timeout-check','token','XssSanitizer']], function (){
 
 

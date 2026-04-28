@@ -60,12 +60,8 @@ class PushTemesaPayment extends Command
                      */
 
                     $amount  = $result[0]->amount;
-
                     $payment  =  CashoutHelper::process($tin,$amount,$date);
-
                     Log::channel('t-pesa-log')->error('PUSH-ERROR '.$payment->getData()->message);
-
-                    dd($payment->getData()->message);
 
                     return  true;
 
@@ -74,8 +70,6 @@ class PushTemesaPayment extends Command
                 Log::channel('t-pesa-log')->error('PUSH-ERROR AMOUNT IS ZERO FOR  TIN '.$tin);
                 return  false;
 
-
-
             }
 
             Log::channel('t-pesa-log')->error('PUSH-ERROR AMOUNT IS NULL FOR  TIN '.$tin);
@@ -83,13 +77,7 @@ class PushTemesaPayment extends Command
 
 
         }catch (\Throwable $exception){
-
-            Log::channel('t-pesa-log')->error('PUSH-ERROR '.$exception->getMessage());
-            Log::channel('t-pesa-log')->error('PUSH-ERROR-LINE'.$exception->getLine());
-            Log::channel('t-pesa-log')->error('PUSH-ERROR-LINE'.$exception->getTraceAsString());
-
-            Session::flash('alert-danger','Failed');
-
+            Log::channel('t-pesa-log')->error('PUSH-ERROR '.$exception);
             return  false;
 
         }

@@ -83,7 +83,6 @@ class ConsumerController extends Controller
     public function show($wallet_id)
     {
         if (!Gate::allows('manage-consumer')) {
-
             return redirect('error-access');
 
         }

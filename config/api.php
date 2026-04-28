@@ -24,7 +24,7 @@ return [
     'HOST'=>env('HOST'),
     'X_API_KEY' =>env('X_API_KEY'),
     'X_USER'=>env('X_USER'),
-    'API_DATA_SYNC_TPESA_URL'=>env('API_DATA_SYNC_TPESA_URL')
-
-
+    'API_DATA_SYNC_TPESA_URL'=>env('API_DATA_SYNC_TPESA_URL'),
+    'GEPG_IP'=>env('GEPG_IP'),
+    'TPESA_API_DISBURSEMENT_KEY'=>env('TPESA_API_DISBURSEMENT_KEY')
 ];

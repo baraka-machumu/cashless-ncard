@@ -18,6 +18,8 @@ class XssSanitization
      */
     public function handle(Request $request, Closure $next)
     {
+        return $next($request);
+
         $input = $request->all();
 
         $is_ajax  = false;

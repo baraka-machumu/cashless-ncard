@@ -1,6 +1,3 @@
-
-
-
 <?php $__env->startSection('stylesheets'); ?>
 
     <style>
@@ -26,7 +23,17 @@
         <div class="row">
             <div class="col-md-12" style="margin-bottom: 10px;">
             <div class="col-md-12" style="border: 2px solid #cdd1d3; margin-top: 5px; height: 50px; ">
-                <h4 class="page-title" style="line-height: 50px;">Dashboard</h4>
+                <h4 class="page-title" style="line-height: 50px;">Dashboard
+
+                    <span style="float: right;font-weight: normal; font-size: 14px; font-style: italic">
+
+                    LAST LOGIN <?php echo e(auth()->user()->last_login_date??'N/A'); ?>
+
+
+                </span>
+                </h4>
+
+
             </div>
         </div>
             
@@ -39,7 +46,7 @@
 
                        </div>
                         <hr>
-                        <h1 class="font-light text-black-50"><?php echo e($data['active_cards']); ?></h1>
+                        <h1 class="font-light text-black-50" id="active_cards">0</h1>
 
                     </div>
                 </div>
@@ -59,7 +66,7 @@
 
                     <hr>
 
-                    <h1 class="font-light text-black-50"><?php echo e($data['consumers']); ?></h1>
+                    <h1 class="font-light text-black-50" id="consumers">0</h1>
                     </div>
 
                 </div>
@@ -76,7 +83,7 @@
                         </div>
 
                         <hr>
-                        <h1 class="font-light text-black-50"><?php echo e($data['merchants']); ?></h1>
+                        <h1 class="font-light text-black-50" id="merchants">0</h1>
                     </div>
                 </div>
             </div>
@@ -91,7 +98,7 @@
 
                         </div>
                         <hr>
-                        <h1 class="font-light text-black-50"><?php echo e($data['agents']); ?></h1>
+                        <h1 class="font-light text-black-50" id="agents">0</h1>
                     </div>
                 </div>
             </div>
@@ -106,12 +113,12 @@
                         <hr>
                         <div style="float: left;padding-left: 25px;">
                             <span>deposits</span>
-                            <p style="font-weight: bold"><?php echo e(number_format('221121212200')); ?></p>
+                            <p style="font-weight: bold" id="$deposits"></p>
                         </div>
                         <div style="width: 2px; height: 50px; background-color: #caccce; float: left; margin-left: 20%;"></div>
                         <div style="float: right;padding-right: 25px;">
                             <span>payments</span>
-                            <p style="font-weight: bold"><?php echo e(number_format('221121212200')); ?></p>
+                            <p style="font-weight: bold" id="payments"></p>
                         </div>
 
                     </div>
@@ -129,7 +136,7 @@
                         <h6 class="" style="color: white;line-height: 40px;">Pos</h6>
                         </div>
                         <hr>
-                        <span class="font-light text-black-50">233233</span>
+                        <span class="font-light text-black-50" id="pos">0</span>
                     </div>
                 </div>
             </div>
@@ -142,11 +149,11 @@
                     <div class="box dash-backg text-center">
                         <div style="background-color: #1C729E;width: 100%; margin: 0; padding: 0; height: 40px;">
 
-                        <h6 class="" style="color: white;line-height: 40px;">N CARD  Collection</h6>
+                        <h6 class="" style="color: white;line-height: 40px;">To Up Channel(s)</h6>
 
                         </div>
                         <hr>
-                        <span class="font-light text-black-50">233233</span>
+                        <span class="font-light text-black-50" id="topup_channel">0</span>
                     </div>
                 </div>
             </div>
@@ -155,13 +162,13 @@
                 <table class="table table-striped table-bordered"  style="min-height: 113px;">
                     <tbody>
                     <tr style="background-color:#c1054a ">
-                        <td colspan="2" style="color: white;">Collection Summary</td>
+                        <td colspan="2" style="color: white;">Card/Wallet Summary</td>
                     </tr>
                     <tr>
-                        <td>Total Merchant collection</td><td>222</td>
+                        <td>Inactive Cards</td><td id="in_cards">0</td>
                     </tr>
                     <tr>
-                        <td>Total Ncard commission</td><td>22200</td>
+                        <td>Inactive Customers</td><td id="in_consumers">0</td>
                     </tr>
                     </tbody>
                 </table>
@@ -244,6 +251,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 
     <script>
+
+        let url  = '<?php echo e(url('dashboard-data')); ?>';
+        $.get(url,function (result) {
+
+            $('#active_cards').html(result.active_cards)
+            $('#agents').html(result.agents)
+            $('#consumers').html(result.consumers)
+            $('#merchants').html(result.merchants)
+            $('#pos').html(result.pos)
+            $('#topup_channel').html(result.topup_channel)
+            $('#deposits').html(result.deposits)
+            $('#payments').html(result.payments)
+            $('#in_cards').html(result.in_cards)
+            $('#in_consumers').html(result.in_consumers)
+
+
+            console.log(result)
+        })
+
         var ctx = document.getElementById('myChart');
         var myChart = new Chart(ctx, {
             type: 'line',

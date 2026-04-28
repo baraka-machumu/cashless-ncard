@@ -9,6 +9,7 @@ use App\Http\Controllers\Retry\PushFailedDataController;
 use App\Monitor;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RetryFailedTransaction extends Command
 {
@@ -17,7 +18,7 @@ class RetryFailedTransaction extends Command
      *
      * @var string
      */
-    protected $signature = 'dd {date} {id}';
+    protected $signature = 'bl-tpesa';
 
     /**
      * The console command description.
@@ -43,69 +44,46 @@ class RetryFailedTransaction extends Command
      */
     public function handle()
     {
-        $input = $this->argument('date');
 
-        $consumer_wallet_id  =  $this->argument('id');
+        set_time_limit(0);
+        ini_set('memory_limit','1G');
 
-        $res  = DB::select('call ReverseTopUpSP(?,?)',array($input,$consumer_wallet_id));
+        $filePath = storage_path('app/data.csv'); // path to your CSV
 
-        echo 'passed db query check '."\r\n";
-
-        foreach ($res as $index=>$row){
-
-            echo 'loop inside '.$index."\r\n";
-
-            DB::beginTransaction();
-
-            $tx  =  new ConsumerReverseTrx();
-
-            $tx->consumer_wallet_id =  $row->consumer_wallet_id;
-            $tx->consumers_id =  $row->consumers_id;
-            $tx->amount =  $row->amount;
-            $tx->status =  0;
-            $tx->gateway_type =  $row->gateway_type;
-            $tx->source_ref =  $row->source_ref;
-            $tx->gateway_id =  $row->gateway_id;
-            $tx->transaction_date =  $row->transaction_date;
-            $tx->mdn =  $row->mdn;
-            $tx->current_balance =  $row->current_balance;
-            $tx->ncard_reference =  $row->ncard_reference;
-            $tx->terminal_device =  $row->terminal_device;
-//            $tx->card =  $row->card;
-            $tx->save();
-
-            if ($tx){
-
-                DB::table('consumer_deposits')
-                    ->where(['consumer_wallet_id'=>$row->consumer_wallet_id,
-                        'source_ref'=>$row->source_ref,'mdn'=>$row->mdn])->update(['status'=>4]);
-
-                $walletId  =  ConsumerWallet::lockForUpdate()->where(['wallet_id'=>$row->consumer_wallet_id])->first();
-
-                $walletId->amount  = $walletId->amount-$row->amount;
-                $walletId->save();
-
-
-                DB::commit();
-
-                echo 'successful saved '.$index.'  -  '.$row->consumer_wallet_id."\r\n";
-
-//                dd('done');
-
-            }
-
-            else {
-
-                DB::rollBack();
-
-                echo 'Rollback '.$index.'  -  '.$row->consumer_wallet_id."\r\n";
-
-            }
-
+        if (!file_exists($filePath)) {
+            return response()->json(['error' => 'File not found'], 404);
         }
 
+        if (($handle = fopen($filePath, 'r')) !== false) {
 
-        dd('done');
+            $headers = fgetcsv($handle);
+            $counter = 0;
+            $counter1 =0;
+            while (($row = fgetcsv($handle)) !== false) {
+                $counter1++;
+                $record = array_combine($headers, $row);
+                echo "start: {$counter1}\n";
+
+                $exists = DB::table('consumer_wallets')
+                    ->where('virtual_msisdn', $record['virtual_msisdn'])
+                    ->exists();
+
+                if ($exists) continue;
+
+                $updated = DB::table('consumer_wallets')
+                    ->where('wallet_id', $record['jamii_ref_no'])
+                    ->update(['virtual_msisdn' => $record['virtual_msisdn']]);
+
+                if ($updated) {
+                    $counter++;
+                    echo "Updated {$counter}\n";
+                }
+            }
+
+            fclose($handle);
+
+            echo "Done. Total updated: {$counter}\n";
+        }
 
     }
 }

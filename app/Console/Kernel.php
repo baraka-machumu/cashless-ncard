@@ -29,9 +29,6 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('daily-balance')->dailyAt('00:00');
         $schedule->command('daily-agent-balance')->dailyAt('00:00');
-
-       // $schedule->command('push-temesa')->everyMinute();
-
     }
 
     /**
